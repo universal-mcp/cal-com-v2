@@ -2,7 +2,7 @@ from typing import Any
 from universal_mcp.applications import APIApplication
 from universal_mcp.integrations import Integration
 
-class Calcomv2App(APIApplication):
+class CalComV2App(APIApplication):
     def __init__(self, integration: Integration = None, **kwargs) -> None:
         super().__init__(name='calcomv2app', integration=integration, **kwargs)
         self.base_url = "https://api.cal.com"
