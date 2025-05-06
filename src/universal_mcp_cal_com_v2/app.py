@@ -4,7 +4,7 @@ from universal_mcp.integrations import Integration
 
 class CalComV2App(APIApplication):
     def __init__(self, integration: Integration = None, **kwargs) -> None:
-        super().__init__(name='calcomv2app', integration=integration, **kwargs)
+        super().__init__(name='cal-com-v2', integration=integration, **kwargs)
         self.base_url = "https://api.cal.com"
 
     def cal_provider_controller_verify_client_id(self, clientId) -> dict[str, Any]:
