@@ -18,7 +18,7 @@ class CalComV2App(APIApplication):
             dict[str, Any]: API response data.
 
         Tags:
-            Platform / Cal Provider
+            Platform / Cal Provider, important
         """
         if clientId is None:
             raise ValueError("Missing required parameter 'clientId'")
@@ -1402,7 +1402,7 @@ class CalComV2App(APIApplication):
             dict[str, Any]: API response data.
 
         Tags:
-            Orgs / Teams
+            Orgs / Teams, important
         """
         if orgId is None:
             raise ValueError("Missing required parameter 'orgId'")
