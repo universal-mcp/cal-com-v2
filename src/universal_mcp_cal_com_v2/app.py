@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional, List
 from universal_mcp.applications import APIApplication
 from universal_mcp.integrations import Integration
 
@@ -7,7 +7,7 @@ class CalComV2App(APIApplication):
         super().__init__(name='cal-com-v2', integration=integration, **kwargs)
         self.base_url = "https://api.cal.com"
 
-    def cal_provider_controller_verify_client_id(self, clientId) -> dict[str, Any]:
+    def get_provider_details(self, clientId: str) -> dict[str, Any]:
         """
         Retrieves information for a provider using the client ID provided in the path.
 
@@ -17,18 +17,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
-            Platform / Cal Provider, important
+            Platform / Cal Provider
         """
         if clientId is None:
-            raise ValueError("Missing required parameter 'clientId'")
+            raise ValueError("Missing required parameter 'clientId'.")
         url = f"{self.base_url}/v2/provider/{clientId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def cal_provider_controller_verify_access_token(self, clientId) -> dict[str, Any]:
+    def get_provider_access_token(self, clientId: str) -> dict[str, Any]:
         """
         Retrieves an access token for the specified client ID using a GET request.
 
@@ -38,16 +47,25 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Cal Provider
         """
         if clientId is None:
-            raise ValueError("Missing required parameter 'clientId'")
+            raise ValueError("Missing required parameter 'clientId'.")
         url = f"{self.base_url}/v2/provider/{clientId}/access-token"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
     def gcal_controller_redirect(self) -> dict[str, Any]:
         """
@@ -56,6 +74,10 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Google Calendar
         """
@@ -63,9 +85,14 @@ class CalComV2App(APIApplication):
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def gcal_controller_save(self, state, code) -> dict[str, Any]:
+    def gcal_controller_save(self, state: str, code: str) -> dict[str, Any]:
         """
         Handles Google Calendar OAuth 2.0 authorization callback by exchanging an authorization code for an access token and saving credentials.
 
@@ -76,6 +103,10 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Google Calendar
         """
@@ -83,7 +114,12 @@ class CalComV2App(APIApplication):
         query_params = {k: v for k, v in [('state', state), ('code', code)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
     def gcal_controller_check(self) -> dict[str, Any]:
         """
@@ -92,6 +128,10 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Google Calendar
         """
@@ -99,9 +139,14 @@ class CalComV2App(APIApplication):
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def oauth_client_users_controller_get_managed_users(self, clientId, limit=None) -> dict[str, Any]:
+    def list_client_users(self, clientId: str, limit: Optional[float] = None) -> dict[str, Any]:
         """
         Retrieves a list of users associated with a specific OAuth client ID, optionally limited by the specified query parameter.
 
@@ -112,18 +157,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Managed Users
         """
         if clientId is None:
-            raise ValueError("Missing required parameter 'clientId'")
+            raise ValueError("Missing required parameter 'clientId'.")
         url = f"{self.base_url}/v2/oauth-clients/{clientId}/users"
         query_params = {k: v for k, v in [('limit', limit)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def oauth_client_users_controller_create_user(self, clientId, email, name, timeFormat=None, weekStart=None, timeZone=None, locale=None, avatarUrl=None) -> dict[str, Any]:
+    def create_oauth_client_user(self, clientId: str, email: str, name: str, timeFormat: Optional[float] = None, weekStart: Optional[str] = None, timeZone: Optional[str] = None, locale: Optional[str] = None, avatarUrl: Optional[str] = None) -> dict[str, Any]:
         """
         Creates a new user for an OAuth client specified by the `clientId` and returns a successful response with a 201 status code.
 
@@ -142,12 +196,17 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Managed Users
         """
         if clientId is None:
-            raise ValueError("Missing required parameter 'clientId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'clientId'.")
+        request_body_data = None
+        request_body_data = {
             'email': email,
             'name': name,
             'timeFormat': timeFormat,
@@ -156,14 +215,19 @@ class CalComV2App(APIApplication):
             'locale': locale,
             'avatarUrl': avatarUrl,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/oauth-clients/{clientId}/users"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def oauth_client_users_controller_get_user_by_id(self, clientId, userId) -> dict[str, Any]:
+    def get_oauth_client_user_by_id(self, clientId: str, userId: str) -> dict[str, Any]:
         """
         Retrieves user-specific information associated with an OAuth client using the provided client ID and user ID.
 
@@ -174,20 +238,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Managed Users
         """
         if clientId is None:
-            raise ValueError("Missing required parameter 'clientId'")
+            raise ValueError("Missing required parameter 'clientId'.")
         if userId is None:
-            raise ValueError("Missing required parameter 'userId'")
+            raise ValueError("Missing required parameter 'userId'.")
         url = f"{self.base_url}/v2/oauth-clients/{clientId}/users/{userId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def oauth_client_users_controller_update_user(self, clientId, userId, email=None, name=None, timeFormat=None, defaultScheduleId=None, weekStart=None, timeZone=None, locale=None, avatarUrl=None) -> dict[str, Any]:
+    def patch_oauth_client_user_by_id(self, clientId: str, userId: str, email: Optional[str] = None, name: Optional[str] = None, timeFormat: Optional[float] = None, defaultScheduleId: Optional[float] = None, weekStart: Optional[str] = None, timeZone: Optional[str] = None, locale: Optional[str] = None, avatarUrl: Optional[str] = None) -> dict[str, Any]:
         """
         Updates the association of a user with a specified OAuth client using the PATCH method on the "/v2/oauth-clients/{clientId}/users/{userId}" path.
 
@@ -206,14 +279,19 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Managed Users
         """
         if clientId is None:
-            raise ValueError("Missing required parameter 'clientId'")
+            raise ValueError("Missing required parameter 'clientId'.")
         if userId is None:
-            raise ValueError("Missing required parameter 'userId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'userId'.")
+        request_body_data = None
+        request_body_data = {
             'email': email,
             'name': name,
             'timeFormat': timeFormat,
@@ -223,14 +301,19 @@ class CalComV2App(APIApplication):
             'locale': locale,
             'avatarUrl': avatarUrl,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/oauth-clients/{clientId}/users/{userId}"
         query_params = {}
-        response = self._patch(url, data=request_body, params=query_params)
+        response = self._patch(url, data=request_body_data, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def oauth_client_users_controller_delete_user(self, clientId, userId) -> dict[str, Any]:
+    def delete_user_by_client_id_id(self, clientId: str, userId: str) -> dict[str, Any]:
         """
         Removes a user's association with an OAuth client identified by the client ID and user ID.
 
@@ -241,20 +324,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Managed Users
         """
         if clientId is None:
-            raise ValueError("Missing required parameter 'clientId'")
+            raise ValueError("Missing required parameter 'clientId'.")
         if userId is None:
-            raise ValueError("Missing required parameter 'userId'")
+            raise ValueError("Missing required parameter 'userId'.")
         url = f"{self.base_url}/v2/oauth-clients/{clientId}/users/{userId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def oauth_client_users_controller_force_refresh(self, clientId, userId) -> dict[str, Any]:
+    def force_refresh_user(self, clientId: str, userId: str) -> dict[str, Any]:
         """
         Forces a refresh for the OAuth client's user session, invalidating existing tokens and generating new ones.
 
@@ -265,20 +357,30 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Managed Users
         """
         if clientId is None:
-            raise ValueError("Missing required parameter 'clientId'")
+            raise ValueError("Missing required parameter 'clientId'.")
         if userId is None:
-            raise ValueError("Missing required parameter 'userId'")
+            raise ValueError("Missing required parameter 'userId'.")
+        request_body_data = None
         url = f"{self.base_url}/v2/oauth-clients/{clientId}/users/{userId}/force-refresh"
         query_params = {}
-        response = self._post(url, data={}, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def oauth_flow_controller_refresh_tokens(self, clientId, refreshToken) -> dict[str, Any]:
+    def refresh_oauth_client_token(self, clientId: str, refreshToken: str) -> dict[str, Any]:
         """
         Refreshes an access token for a specified client using OAuth 2.0, allowing the client to obtain a new access token without user interaction.
 
@@ -289,22 +391,32 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Managed Users
         """
         if clientId is None:
-            raise ValueError("Missing required parameter 'clientId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'clientId'.")
+        request_body_data = None
+        request_body_data = {
             'refreshToken': refreshToken,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/oauth/{clientId}/refresh"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def oauth_client_webhooks_controller_create_oauth_client_webhook(self, clientId, active, subscriberUrl, triggers, payloadTemplate=None, secret=None) -> dict[str, Any]:
+    def create_oauth_client_webhook(self, clientId: str, active: bool, subscriberUrl: str, triggers: str, payloadTemplate: Optional[str] = None, secret: Optional[str] = None) -> dict[str, Any]:
         """
         Creates a webhook for an OAuth client using the client ID specified in the path, enabling event-driven communication.
 
@@ -319,26 +431,36 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Webhooks
         """
         if clientId is None:
-            raise ValueError("Missing required parameter 'clientId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'clientId'.")
+        request_body_data = None
+        request_body_data = {
             'payloadTemplate': payloadTemplate,
             'active': active,
             'subscriberUrl': subscriberUrl,
             'triggers': triggers,
             'secret': secret,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/oauth-clients/{clientId}/webhooks"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def oauth_client_webhooks_controller_get_oauth_client_webhooks(self, clientId, take=None, skip=None) -> dict[str, Any]:
+    def list_webhooks_by_client_id(self, clientId: str, take: Optional[float] = None, skip: Optional[float] = None) -> dict[str, Any]:
         """
         Retrieves a paginated list of webhooks associated with a specific OAuth client using clientId, take, and skip parameters for pagination.
 
@@ -350,18 +472,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Webhooks
         """
         if clientId is None:
-            raise ValueError("Missing required parameter 'clientId'")
+            raise ValueError("Missing required parameter 'clientId'.")
         url = f"{self.base_url}/v2/oauth-clients/{clientId}/webhooks"
         query_params = {k: v for k, v in [('take', take), ('skip', skip)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def oauth_client_webhooks_controller_delete_all_oauth_client_webhooks(self, clientId) -> dict[str, Any]:
+    def delete_client_webhook(self, clientId: str) -> dict[str, Any]:
         """
         Deletes a webhook associated with an OAuth client identified by the provided client ID using the DELETE method.
 
@@ -371,18 +502,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Webhooks
         """
         if clientId is None:
-            raise ValueError("Missing required parameter 'clientId'")
+            raise ValueError("Missing required parameter 'clientId'.")
         url = f"{self.base_url}/v2/oauth-clients/{clientId}/webhooks"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def oauth_client_webhooks_controller_update_oauth_client_webhook(self, clientId, webhookId, payloadTemplate=None, active=None, subscriberUrl=None, triggers=None, secret=None) -> dict[str, Any]:
+    def update_webhook(self, clientId: str, webhookId: str, payloadTemplate: Optional[str] = None, active: Optional[bool] = None, subscriberUrl: Optional[str] = None, triggers: Optional[str] = None, secret: Optional[str] = None) -> dict[str, Any]:
         """
         Updates an existing webhook for a specified OAuth client using the "PATCH" method, modifying its configuration as needed.
 
@@ -398,28 +538,38 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Webhooks
         """
         if clientId is None:
-            raise ValueError("Missing required parameter 'clientId'")
+            raise ValueError("Missing required parameter 'clientId'.")
         if webhookId is None:
-            raise ValueError("Missing required parameter 'webhookId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'webhookId'.")
+        request_body_data = None
+        request_body_data = {
             'payloadTemplate': payloadTemplate,
             'active': active,
             'subscriberUrl': subscriberUrl,
             'triggers': triggers,
             'secret': secret,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/oauth-clients/{clientId}/webhooks/{webhookId}"
         query_params = {}
-        response = self._patch(url, data=request_body, params=query_params)
+        response = self._patch(url, data=request_body_data, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def oauth_client_webhooks_controller_get_oauth_client_webhook(self, clientId, webhookId) -> dict[str, Any]:
+    def get_oauth_client_webhook_by_id(self, clientId: str, webhookId: str) -> dict[str, Any]:
         """
         Retrieves information about a specific webhook associated with an OAuth client using the "GET" method at the specified path.
 
@@ -430,20 +580,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Webhooks
         """
         if clientId is None:
-            raise ValueError("Missing required parameter 'clientId'")
+            raise ValueError("Missing required parameter 'clientId'.")
         if webhookId is None:
-            raise ValueError("Missing required parameter 'webhookId'")
+            raise ValueError("Missing required parameter 'webhookId'.")
         url = f"{self.base_url}/v2/oauth-clients/{clientId}/webhooks/{webhookId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def oauth_client_webhooks_controller_delete_oauth_client_webhook(self, clientId, webhookId) -> dict[str, Any]:
+    def delete_oauth_client_webhook_by_id(self, clientId: str, webhookId: str) -> dict[str, Any]:
         """
         Deletes a webhook associated with a specific OAuth client using the provided client and webhook IDs.
 
@@ -454,20 +613,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Platform / Webhooks
         """
         if clientId is None:
-            raise ValueError("Missing required parameter 'clientId'")
+            raise ValueError("Missing required parameter 'clientId'.")
         if webhookId is None:
-            raise ValueError("Missing required parameter 'webhookId'")
+            raise ValueError("Missing required parameter 'webhookId'.")
         url = f"{self.base_url}/v2/oauth-clients/{clientId}/webhooks/{webhookId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_attributes_controller_get_organization_attributes(self, orgId, take=None, skip=None) -> dict[str, Any]:
+    def list_org_attributes(self, orgId: str, take: Optional[float] = None, skip: Optional[float] = None) -> dict[str, Any]:
         """
         Retrieves a list of organization attributes filtered by pagination parameters.
 
@@ -479,18 +647,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Attributes
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/attributes"
         query_params = {k: v for k, v in [('take', take), ('skip', skip)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_attributes_controller_create_organization_attribute(self, orgId, name, slug, type, options, enabled=None) -> dict[str, Any]:
+    def create_org_attributes(self, orgId: str, name: str, slug: str, type: str, options: List[dict[str, Any]], enabled: Optional[bool] = None) -> dict[str, Any]:
         """
         Adds new attributes to an organization using the API, specifying the organization ID in the path, and returns a successful creation status.
 
@@ -505,26 +682,36 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Attributes
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'orgId'.")
+        request_body_data = None
+        request_body_data = {
             'name': name,
             'slug': slug,
             'type': type,
             'options': options,
             'enabled': enabled,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/attributes"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_attributes_controller_get_organization_attribute(self, orgId, attributeId) -> dict[str, Any]:
+    def fetch_organization_attribute_by_id(self, orgId: str, attributeId: str) -> dict[str, Any]:
         """
         Retrieves a specific attribute for an organization based on the provided orgId and attributeId.
 
@@ -535,20 +722,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Attributes
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if attributeId is None:
-            raise ValueError("Missing required parameter 'attributeId'")
+            raise ValueError("Missing required parameter 'attributeId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/attributes/{attributeId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_attributes_controller_update_organization_attribute(self, orgId, attributeId, name=None, slug=None, type=None, enabled=None) -> dict[str, Any]:
+    def update_organization_attribute(self, orgId: str, attributeId: str, name: Optional[str] = None, slug: Optional[str] = None, type: Optional[str] = None, enabled: Optional[bool] = None) -> dict[str, Any]:
         """
         Modifies an attribute of an organization using the PATCH method, updating the specified attribute by ID within the given organization.
 
@@ -563,27 +759,37 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Attributes
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if attributeId is None:
-            raise ValueError("Missing required parameter 'attributeId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'attributeId'.")
+        request_body_data = None
+        request_body_data = {
             'name': name,
             'slug': slug,
             'type': type,
             'enabled': enabled,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/attributes/{attributeId}"
         query_params = {}
-        response = self._patch(url, data=request_body, params=query_params)
+        response = self._patch(url, data=request_body_data, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_attributes_controller_delete_organization_attribute(self, orgId, attributeId) -> dict[str, Any]:
+    def delete_org_attribute(self, orgId: str, attributeId: str) -> dict[str, Any]:
         """
         Deletes a specified attribute from an organization using the provided orgId and attributeId path parameters.
 
@@ -594,20 +800,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Attributes
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if attributeId is None:
-            raise ValueError("Missing required parameter 'attributeId'")
+            raise ValueError("Missing required parameter 'attributeId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/attributes/{attributeId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_options_attributes_controller_create_organization_attribute_option(self, orgId, attributeId, value, slug) -> dict[str, Any]:
+    def create_org_attribute_option(self, orgId: str, attributeId: str, value: str, slug: str) -> dict[str, Any]:
         """
         Creates a new option for the specified attribute in the given organization and returns the created resource.
 
@@ -620,25 +835,35 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Attributes / Options
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if attributeId is None:
-            raise ValueError("Missing required parameter 'attributeId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'attributeId'.")
+        request_body_data = None
+        request_body_data = {
             'value': value,
             'slug': slug,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/attributes/{attributeId}/options"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_options_attributes_controller_get_organization_attribute_options(self, orgId, attributeId) -> dict[str, Any]:
+    def get_org_attribute_options(self, orgId: str, attributeId: str) -> dict[str, Any]:
         """
         Retrieves options for a specific attribute within an organization using the "GET" method at the "/v2/organizations/{orgId}/attributes/{attributeId}/options" endpoint.
 
@@ -649,20 +874,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Attributes / Options
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if attributeId is None:
-            raise ValueError("Missing required parameter 'attributeId'")
+            raise ValueError("Missing required parameter 'attributeId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/attributes/{attributeId}/options"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_options_attributes_controller_delete_organization_attribute_option(self, orgId, attributeId, optionId) -> dict[str, Any]:
+    def delete_attribute_option_by_id(self, orgId: str, attributeId: str, optionId: str) -> dict[str, Any]:
         """
         Deletes a specific attribute option for an organization's custom attributes using the provided orgId, attributeId, and optionId.
 
@@ -674,22 +908,31 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Attributes / Options
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if attributeId is None:
-            raise ValueError("Missing required parameter 'attributeId'")
+            raise ValueError("Missing required parameter 'attributeId'.")
         if optionId is None:
-            raise ValueError("Missing required parameter 'optionId'")
+            raise ValueError("Missing required parameter 'optionId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/attributes/{attributeId}/options/{optionId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_options_attributes_controller_update_organization_attribute_option(self, orgId, attributeId, optionId, value=None, slug=None) -> dict[str, Any]:
+    def patch_option_by_id(self, orgId: str, attributeId: str, optionId: str, value: Optional[str] = None, slug: Optional[str] = None) -> dict[str, Any]:
         """
         Updates a specific option for an organization's attribute using partial modifications.
 
@@ -703,27 +946,37 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Attributes / Options
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if attributeId is None:
-            raise ValueError("Missing required parameter 'attributeId'")
+            raise ValueError("Missing required parameter 'attributeId'.")
         if optionId is None:
-            raise ValueError("Missing required parameter 'optionId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'optionId'.")
+        request_body_data = None
+        request_body_data = {
             'value': value,
             'slug': slug,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/attributes/{attributeId}/options/{optionId}"
         query_params = {}
-        response = self._patch(url, data=request_body, params=query_params)
+        response = self._patch(url, data=request_body_data, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_options_attributes_controller_assign_organization_attribute_option_to_user(self, orgId, userId, attributeId, value=None, attributeOptionId=None) -> dict[str, Any]:
+    def set_user_attribute_option(self, orgId: str, userId: str, attributeId: str, value: Optional[str] = None, attributeOptionId: Optional[str] = None) -> dict[str, Any]:
         """
         Assigns attribute options to a user within an organization using the POST method and returns a creation status.
 
@@ -737,26 +990,36 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Attributes / Options
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if userId is None:
-            raise ValueError("Missing required parameter 'userId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'userId'.")
+        request_body_data = None
+        request_body_data = {
             'value': value,
             'attributeOptionId': attributeOptionId,
             'attributeId': attributeId,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/attributes/options/{userId}"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_options_attributes_controller_get_organization_attribute_options_for_user(self, orgId, userId) -> dict[str, Any]:
+    def get_user_org_attribute_options(self, orgId: str, userId: str) -> dict[str, Any]:
         """
         Retrieves attribute options for a specified user within an organization using the "GET" method.
 
@@ -767,20 +1030,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Attributes / Options
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if userId is None:
-            raise ValueError("Missing required parameter 'userId'")
+            raise ValueError("Missing required parameter 'userId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/attributes/options/{userId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_options_attributes_controller_unassign_organization_attribute_option_from_user(self, orgId, userId, attributeOptionId) -> dict[str, Any]:
+    def delete_attribute_option(self, orgId: str, userId: str, attributeOptionId: str) -> dict[str, Any]:
         """
         Deletes a specific attribute option for a user within an organization via the provided path parameters.
 
@@ -792,22 +1064,31 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Attributes / Options
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if userId is None:
-            raise ValueError("Missing required parameter 'userId'")
+            raise ValueError("Missing required parameter 'userId'.")
         if attributeOptionId is None:
-            raise ValueError("Missing required parameter 'attributeOptionId'")
+            raise ValueError("Missing required parameter 'attributeOptionId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/attributes/options/{userId}/{attributeOptionId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_event_types_controller_create_team_event_type(self, orgId, teamId, lengthInMinutes, lengthInMinutesOptions, title, slug, schedulingType, hosts, description=None, locations=None, bookingFields=None, disableGuests=None, slotInterval=None, minimumBookingNotice=None, beforeEventBuffer=None, afterEventBuffer=None, scheduleId=None, bookingLimitsCount=None, onlyShowFirstAvailableSlot=None, bookingLimitsDuration=None, bookingWindow=None, offsetStart=None, bookerLayouts=None, confirmationPolicy=None, recurrence=None, requiresBookerEmailVerification=None, hideCalendarNotes=None, lockTimeZoneToggleOnBookingPage=None, color=None, seats=None, customName=None, destinationCalendar=None, useDestinationCalendarEmail=None, hideCalendarEventDetails=None, successRedirectUrl=None, assignAllTeamMembers=None) -> dict[str, Any]:
+    def create_event_type(self, orgId: str, teamId: str, lengthInMinutes: float, lengthInMinutesOptions: List[str], title: str, slug: str, schedulingType: dict[str, Any], hosts: List[dict[str, Any]], description: Optional[str] = None, locations: Optional[List[Any]] = None, bookingFields: Optional[List[Any]] = None, disableGuests: Optional[bool] = None, slotInterval: Optional[float] = None, minimumBookingNotice: Optional[float] = None, beforeEventBuffer: Optional[float] = None, afterEventBuffer: Optional[float] = None, scheduleId: Optional[float] = None, bookingLimitsCount: Optional[Any] = None, onlyShowFirstAvailableSlot: Optional[bool] = None, bookingLimitsDuration: Optional[Any] = None, bookingWindow: Optional[Any] = None, offsetStart: Optional[float] = None, bookerLayouts: Optional[Any] = None, confirmationPolicy: Optional[Any] = None, recurrence: Optional[Any] = None, requiresBookerEmailVerification: Optional[bool] = None, hideCalendarNotes: Optional[bool] = None, lockTimeZoneToggleOnBookingPage: Optional[bool] = None, color: Optional[dict[str, Any]] = None, seats: Optional[Any] = None, customName: Optional[str] = None, destinationCalendar: Optional[dict[str, Any]] = None, useDestinationCalendarEmail: Optional[bool] = None, hideCalendarEventDetails: Optional[bool] = None, successRedirectUrl: Optional[str] = None, assignAllTeamMembers: Optional[bool] = None) -> dict[str, Any]:
         """
         Creates a new event type within a specified team and organization.
 
@@ -857,14 +1138,19 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Event Types
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'teamId'.")
+        request_body_data = None
+        request_body_data = {
             'lengthInMinutes': lengthInMinutes,
             'lengthInMinutesOptions': lengthInMinutesOptions,
             'title': title,
@@ -900,14 +1186,19 @@ class CalComV2App(APIApplication):
             'hosts': hosts,
             'assignAllTeamMembers': assignAllTeamMembers,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/teams/{teamId}/event-types"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_event_types_controller_get_team_event_types(self, orgId, teamId, eventSlug=None) -> dict[str, Any]:
+    def list_event_types_by_team_and_org(self, orgId: str, teamId: str, eventSlug: Optional[str] = None) -> dict[str, Any]:
         """
         Retrieves event types for a specific team within an organization using the "GET" method at the "/v2/organizations/{orgId}/teams/{teamId}/event-types" endpoint, optionally filtering by event slug.
 
@@ -919,20 +1210,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Event Types
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/teams/{teamId}/event-types"
         query_params = {k: v for k, v in [('eventSlug', eventSlug)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_event_types_controller_get_team_event_type(self, orgId, teamId, eventTypeId) -> dict[str, Any]:
+    def get_event_types_by_team_id(self, orgId: str, teamId: str, eventTypeId: str) -> dict[str, Any]:
         """
         Retrieves details about a specific event type within a team of an organization using the provided organization ID, team ID, and event type ID.
 
@@ -944,22 +1244,31 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Event Types
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         if eventTypeId is None:
-            raise ValueError("Missing required parameter 'eventTypeId'")
+            raise ValueError("Missing required parameter 'eventTypeId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_event_types_controller_create_phone_call(self, orgId, teamId, eventTypeId, yourPhoneNumber, numberToCall, calApiKey, enabled, templateType, schedulerName=None, guestName=None, guestEmail=None, guestCompany=None, beginMessage=None, generalPrompt=None) -> dict[str, Any]:
+    def create_phone_call_event(self, orgId: str, teamId: str, eventTypeId: str, yourPhoneNumber: str, numberToCall: str, calApiKey: str, enabled: dict[str, Any], templateType: str, schedulerName: Optional[str] = None, guestName: Optional[str] = None, guestEmail: Optional[str] = None, guestCompany: Optional[str] = None, beginMessage: Optional[str] = None, generalPrompt: Optional[str] = None) -> dict[str, Any]:
         """
         Initiates a phone call for a specific event type under an organization's team context and returns a 201 Created response upon successful creation.
 
@@ -982,16 +1291,21 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Event Types
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         if eventTypeId is None:
-            raise ValueError("Missing required parameter 'eventTypeId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'eventTypeId'.")
+        request_body_data = None
+        request_body_data = {
             'yourPhoneNumber': yourPhoneNumber,
             'numberToCall': numberToCall,
             'calApiKey': calApiKey,
@@ -1004,14 +1318,19 @@ class CalComV2App(APIApplication):
             'beginMessage': beginMessage,
             'generalPrompt': generalPrompt,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}/create-phone-call"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_event_types_controller_get_teams_event_types(self, orgId, take=None, skip=None) -> dict[str, Any]:
+    def list_event_types_by_org_id(self, orgId: str, take: Optional[float] = None, skip: Optional[float] = None) -> dict[str, Any]:
         """
         Retrieves a paginated list of event types for teams within a specified organization.
 
@@ -1023,18 +1342,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Event Types
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/teams/event-types"
         query_params = {k: v for k, v in [('take', take), ('skip', skip)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_memberships_controller_get_all_memberships(self, orgId, take=None, skip=None) -> dict[str, Any]:
+    def list_organization_memberships(self, orgId: str, take: Optional[float] = None, skip: Optional[float] = None) -> dict[str, Any]:
         """
         Retrieves a list of memberships for an organization identified by the specified `orgId`, allowing pagination through optional `take` and `skip` query parameters.
 
@@ -1046,18 +1374,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Memberships
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/memberships"
         query_params = {k: v for k, v in [('take', take), ('skip', skip)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_memberships_controller_create_membership(self, orgId, userId, role, accepted=False, disableImpersonation=False) -> dict[str, Any]:
+    def create_membership(self, orgId: str, userId: float, role: str, accepted: Optional[bool] = None, disableImpersonation: Optional[bool] = None) -> dict[str, Any]:
         """
         Creates a new membership for an organization identified by {orgId} using the API.
 
@@ -1071,25 +1408,35 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Memberships
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'orgId'.")
+        request_body_data = None
+        request_body_data = {
             'userId': userId,
             'accepted': accepted,
             'role': role,
             'disableImpersonation': disableImpersonation,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/memberships"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_memberships_controller_get_org_membership(self, orgId, membershipId) -> dict[str, Any]:
+    def get_org_membership_by_id(self, orgId: str, membershipId: str) -> dict[str, Any]:
         """
         Retrieves membership details for a specific organization membership using the provided organization ID and membership ID.
 
@@ -1100,20 +1447,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Memberships
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if membershipId is None:
-            raise ValueError("Missing required parameter 'membershipId'")
+            raise ValueError("Missing required parameter 'membershipId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/memberships/{membershipId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_memberships_controller_delete_membership(self, orgId, membershipId) -> dict[str, Any]:
+    def delete_org_membership_by_id(self, orgId: str, membershipId: str) -> dict[str, Any]:
         """
         Removes a user's membership from the specified organization by deleting the membership record at the given path.
 
@@ -1124,20 +1480,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Memberships
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if membershipId is None:
-            raise ValueError("Missing required parameter 'membershipId'")
+            raise ValueError("Missing required parameter 'membershipId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/memberships/{membershipId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_memberships_controller_update_membership(self, orgId, membershipId, accepted=None, role=None, disableImpersonation=None) -> dict[str, Any]:
+    def update_membership_by_id_org(self, orgId: str, membershipId: str, accepted: Optional[bool] = None, role: Optional[str] = None, disableImpersonation: Optional[bool] = None) -> dict[str, Any]:
         """
         Updates an organization membership's details using the PATCH method and returns the updated membership data.
 
@@ -1151,26 +1516,36 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Memberships
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if membershipId is None:
-            raise ValueError("Missing required parameter 'membershipId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'membershipId'.")
+        request_body_data = None
+        request_body_data = {
             'accepted': accepted,
             'role': role,
             'disableImpersonation': disableImpersonation,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/memberships/{membershipId}"
         query_params = {}
-        response = self._patch(url, data=request_body, params=query_params)
+        response = self._patch(url, data=request_body_data, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_schedules_controller_get_organization_schedules(self, orgId, take=None, skip=None) -> dict[str, Any]:
+    def get_organization_schedules(self, orgId: str, take: Optional[float] = None, skip: Optional[float] = None) -> dict[str, Any]:
         """
         Retrieves a list of schedules for the specified organization, using pagination parameters to limit results.
 
@@ -1182,18 +1557,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Schedules
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/schedules"
         query_params = {k: v for k, v in [('take', take), ('skip', skip)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_schedules_controller_create_user_schedule(self, orgId, userId, name, timeZone, isDefault, availability=None, overrides=None) -> dict[str, Any]:
+    def create_user_schedule(self, orgId: str, userId: str, name: str, timeZone: str, isDefault: bool, availability: Optional[List[dict[str, Any]]] = None, overrides: Optional[List[dict[str, Any]]] = None) -> dict[str, Any]:
         """
         Creates a schedule for the specified user within an organization and returns a success status upon creation.
 
@@ -1210,28 +1594,38 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Schedules, Orgs / Users / Schedules
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if userId is None:
-            raise ValueError("Missing required parameter 'userId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'userId'.")
+        request_body_data = None
+        request_body_data = {
             'name': name,
             'timeZone': timeZone,
             'availability': availability,
             'isDefault': isDefault,
             'overrides': overrides,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/users/{userId}/schedules"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_schedules_controller_get_user_schedules(self, orgId, userId) -> dict[str, Any]:
+    def get_user_schedule(self, orgId: str, userId: str) -> dict[str, Any]:
         """
         Retrieves a user's schedule for a specific organization using the GET method.
 
@@ -1242,20 +1636,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Schedules, Orgs / Users / Schedules
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if userId is None:
-            raise ValueError("Missing required parameter 'userId'")
+            raise ValueError("Missing required parameter 'userId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/users/{userId}/schedules"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_schedules_controller_get_user_schedule(self, orgId, userId, scheduleId) -> dict[str, Any]:
+    def get_schedule_detail(self, orgId: str, userId: str, scheduleId: str) -> dict[str, Any]:
         """
         Retrieves the specified schedule for a user within an organization.
 
@@ -1267,22 +1670,31 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Schedules, Orgs / Users / Schedules
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if userId is None:
-            raise ValueError("Missing required parameter 'userId'")
+            raise ValueError("Missing required parameter 'userId'.")
         if scheduleId is None:
-            raise ValueError("Missing required parameter 'scheduleId'")
+            raise ValueError("Missing required parameter 'scheduleId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/users/{userId}/schedules/{scheduleId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_schedules_controller_update_user_schedule(self, orgId, userId, scheduleId, name=None, timeZone=None, availability=None, isDefault=None, overrides=None) -> dict[str, Any]:
+    def update_user_schedule_by_id(self, orgId: str, userId: str, scheduleId: str, name: Optional[str] = None, timeZone: Optional[str] = None, availability: Optional[List[dict[str, Any]]] = None, isDefault: Optional[bool] = None, overrides: Optional[List[dict[str, Any]]] = None) -> dict[str, Any]:
         """
         Updates a user's schedule for a specified organization by applying partial modifications to the schedule's details using the PATCH method.
 
@@ -1299,30 +1711,40 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Schedules, Orgs / Users / Schedules
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if userId is None:
-            raise ValueError("Missing required parameter 'userId'")
+            raise ValueError("Missing required parameter 'userId'.")
         if scheduleId is None:
-            raise ValueError("Missing required parameter 'scheduleId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'scheduleId'.")
+        request_body_data = None
+        request_body_data = {
             'name': name,
             'timeZone': timeZone,
             'availability': availability,
             'isDefault': isDefault,
             'overrides': overrides,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/users/{userId}/schedules/{scheduleId}"
         query_params = {}
-        response = self._patch(url, data=request_body, params=query_params)
+        response = self._patch(url, data=request_body_data, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_schedules_controller_delete_user_schedule(self, orgId, userId, scheduleId) -> dict[str, Any]:
+    def delete_user_schedule_by_id(self, orgId: str, userId: str, scheduleId: str) -> dict[str, Any]:
         """
         Deletes a specific schedule for a user within an organization and returns a success status.
 
@@ -1334,22 +1756,31 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Schedules, Orgs / Users / Schedules
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if userId is None:
-            raise ValueError("Missing required parameter 'userId'")
+            raise ValueError("Missing required parameter 'userId'.")
         if scheduleId is None:
-            raise ValueError("Missing required parameter 'scheduleId'")
+            raise ValueError("Missing required parameter 'scheduleId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/users/{userId}/schedules/{scheduleId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_teams_controller_get_all_teams(self, orgId, take=None, skip=None) -> dict[str, Any]:
+    def get_organization_teams(self, orgId: str, take: Optional[float] = None, skip: Optional[float] = None) -> dict[str, Any]:
         """
         Retrieves a list of teams for a specified organization using the provided orgId, with optional pagination control via take and skip parameters.
 
@@ -1361,18 +1792,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Teams, Teams
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/teams"
         query_params = {k: v for k, v in [('take', take), ('skip', skip)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_teams_controller_create_team(self, orgId, name, slug=None, logoUrl=None, calVideoLogo=None, appLogo=None, appIconLogo=None, bio=None, hideBranding=False, isPrivate=None, hideBookATeamMember=None, metadata=None, theme=None, brandColor=None, darkBrandColor=None, bannerUrl=None, timeFormat=None, timeZone="Europe/London", weekStart="Sunday", autoAcceptCreator=True) -> dict[str, Any]:
+    def create_team_in_organization(self, orgId: str, name: str, slug: Optional[str] = None, logoUrl: Optional[str] = None, calVideoLogo: Optional[str] = None, appLogo: Optional[str] = None, appIconLogo: Optional[str] = None, bio: Optional[str] = None, hideBranding: Optional[bool] = None, isPrivate: Optional[bool] = None, hideBookATeamMember: Optional[bool] = None, metadata: Optional[str] = None, theme: Optional[str] = None, brandColor: Optional[str] = None, darkBrandColor: Optional[str] = None, bannerUrl: Optional[str] = None, timeFormat: Optional[float] = None, timeZone: Optional[str] = None, weekStart: Optional[str] = None, autoAcceptCreator: Optional[bool] = None) -> dict[str, Any]:
         """
         Creates a new team within the specified organization using the provided organization ID and returns a success status upon creation.
 
@@ -1401,12 +1841,17 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
-            Orgs / Teams, important
+            Orgs / Teams
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'orgId'.")
+        request_body_data = None
+        request_body_data = {
             'name': name,
             'slug': slug,
             'logoUrl': logoUrl,
@@ -1427,14 +1872,19 @@ class CalComV2App(APIApplication):
             'weekStart': weekStart,
             'autoAcceptCreator': autoAcceptCreator,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/teams"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_teams_controller_get_my_teams(self, orgId, take=None, skip=None) -> dict[str, Any]:
+    def get_organization_team_me(self, orgId: str, take: Optional[float] = None, skip: Optional[float] = None) -> dict[str, Any]:
         """
         Retrieves the teams for the current user within a specified organization using the "GET" method, optionally allowing pagination through query parameters.
 
@@ -1446,18 +1896,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Teams
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/teams/me"
         query_params = {k: v for k, v in [('take', take), ('skip', skip)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_teams_controller_get_team(self, orgId, teamId) -> dict[str, Any]:
+    def get_organization_team_by_id(self, orgId: str, teamId: str) -> dict[str, Any]:
         """
         Retrieves information about a specific team within an organization using the organization and team IDs.
 
@@ -1468,20 +1927,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Teams
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/teams/{teamId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_teams_controller_delete_team(self, orgId, teamId) -> dict[str, Any]:
+    def delete_team_by_id(self, orgId: str, teamId: str) -> dict[str, Any]:
         """
         Deletes a specific team within an organization and returns a success status upon completion.
 
@@ -1492,20 +1960,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Teams
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/teams/{teamId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_teams_controller_update_team(self, orgId, teamId, name=None, slug=None, logoUrl=None, calVideoLogo=None, appLogo=None, appIconLogo=None, bio=None, hideBranding=None, isPrivate=None, hideBookATeamMember=None, metadata=None, theme=None, brandColor=None, darkBrandColor=None, bannerUrl=None, timeFormat=None, timeZone=None, weekStart=None, bookingLimits=None, includeManagedEventsInLimits=None) -> dict[str, Any]:
+    def update_team(self, orgId: str, teamId: str, name: Optional[str] = None, slug: Optional[str] = None, logoUrl: Optional[str] = None, calVideoLogo: Optional[str] = None, appLogo: Optional[str] = None, appIconLogo: Optional[str] = None, bio: Optional[str] = None, hideBranding: Optional[bool] = None, isPrivate: Optional[bool] = None, hideBookATeamMember: Optional[bool] = None, metadata: Optional[str] = None, theme: Optional[str] = None, brandColor: Optional[str] = None, darkBrandColor: Optional[str] = None, bannerUrl: Optional[str] = None, timeFormat: Optional[float] = None, timeZone: Optional[str] = None, weekStart: Optional[str] = None, bookingLimits: Optional[str] = None, includeManagedEventsInLimits: Optional[bool] = None) -> dict[str, Any]:
         """
         Updates the specified team properties within an organization using partial modifications.
 
@@ -1536,14 +2013,19 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Teams
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'teamId'.")
+        request_body_data = None
+        request_body_data = {
             'name': name,
             'slug': slug,
             'logoUrl': logoUrl,
@@ -1565,14 +2047,19 @@ class CalComV2App(APIApplication):
             'bookingLimits': bookingLimits,
             'includeManagedEventsInLimits': includeManagedEventsInLimits,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/teams/{teamId}"
         query_params = {}
-        response = self._patch(url, data=request_body, params=query_params)
+        response = self._patch(url, data=request_body_data, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_teams_memberships_controller_get_all_org_team_memberships(self, orgId, teamId, take=None, skip=None) -> dict[str, Any]:
+    def list_team_memberships(self, orgId: str, teamId: str, take: Optional[float] = None, skip: Optional[float] = None) -> dict[str, Any]:
         """
         Retrieves a paginated list of memberships for a specified team within an organization, using path parameters for orgId and teamId, and query parameters for pagination (take and skip).
 
@@ -1585,20 +2072,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Teams / Memberships
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/teams/{teamId}/memberships"
         query_params = {k: v for k, v in [('take', take), ('skip', skip)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_teams_memberships_controller_create_org_team_membership(self, orgId, teamId, userId, role, accepted=False, disableImpersonation=False) -> dict[str, Any]:
+    def create_team_membership(self, orgId: str, teamId: str, userId: float, role: str, accepted: Optional[bool] = None, disableImpersonation: Optional[bool] = None) -> dict[str, Any]:
         """
         Adds a member to the specified team within an organization and returns the membership details.
 
@@ -1613,27 +2109,37 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Teams / Memberships
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'teamId'.")
+        request_body_data = None
+        request_body_data = {
             'userId': userId,
             'accepted': accepted,
             'role': role,
             'disableImpersonation': disableImpersonation,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/teams/{teamId}/memberships"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_teams_memberships_controller_get_org_team_membership(self, orgId, teamId, membershipId) -> dict[str, Any]:
+    def get_membership_details(self, orgId: str, teamId: str, membershipId: str) -> dict[str, Any]:
         """
         Retrieves a specific membership record for a team within an organization, identified by membership ID, team ID, and organization ID.
 
@@ -1645,22 +2151,31 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Teams / Memberships
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         if membershipId is None:
-            raise ValueError("Missing required parameter 'membershipId'")
+            raise ValueError("Missing required parameter 'membershipId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/teams/{teamId}/memberships/{membershipId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_teams_memberships_controller_delete_org_team_membership(self, orgId, teamId, membershipId) -> dict[str, Any]:
+    def delete_org_team_membership_by_id(self, orgId: str, teamId: str, membershipId: str) -> dict[str, Any]:
         """
         Removes a user's team membership in an organization using the specified organization, team, and membership identifiers.
 
@@ -1672,22 +2187,31 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Teams / Memberships
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         if membershipId is None:
-            raise ValueError("Missing required parameter 'membershipId'")
+            raise ValueError("Missing required parameter 'membershipId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/teams/{teamId}/memberships/{membershipId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_teams_memberships_controller_update_org_team_membership(self, orgId, teamId, membershipId, accepted=None, role=None, disableImpersonation=None) -> dict[str, Any]:
+    def patch_team_membership_by_id(self, orgId: str, teamId: str, membershipId: str, accepted: Optional[bool] = None, role: Optional[str] = None, disableImpersonation: Optional[bool] = None) -> dict[str, Any]:
         """
         Updates membership details for a specific organization team member using partial modifications and returns a success status.
 
@@ -1702,28 +2226,38 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Teams / Memberships
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         if membershipId is None:
-            raise ValueError("Missing required parameter 'membershipId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'membershipId'.")
+        request_body_data = None
+        request_body_data = {
             'accepted': accepted,
             'role': role,
             'disableImpersonation': disableImpersonation,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/teams/{teamId}/memberships/{membershipId}"
         query_params = {}
-        response = self._patch(url, data=request_body, params=query_params)
+        response = self._patch(url, data=request_body_data, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_teams_schedules_controller_get_user_schedules(self, orgId, teamId, userId) -> dict[str, Any]:
+    def get_schedule_by_user(self, orgId: str, teamId: str, userId: str) -> dict[str, Any]:
         """
         Retrieves the schedule details for a specific user within a designated team and organization.
 
@@ -1735,22 +2269,31 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Teams / Schedules, Orgs / Teams / Users / Schedules
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         if userId is None:
-            raise ValueError("Missing required parameter 'userId'")
+            raise ValueError("Missing required parameter 'userId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/teams/{teamId}/users/{userId}/schedules"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_users_controller_get_organizations_users(self, orgId, take=None, skip=None, emails=None) -> dict[str, Any]:
+    def list_org_users(self, orgId: str, take: Optional[float] = None, skip: Optional[float] = None, emails: Optional[List[str]] = None) -> dict[str, Any]:
         """
         Retrieves a list of users for a specified organization, allowing filtering by take, skip, and emails parameters, using the GET method on the "/v2/organizations/{orgId}/users" endpoint.
 
@@ -1763,18 +2306,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Users
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/users"
         query_params = {k: v for k, v in [('take', take), ('skip', skip), ('emails', emails)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_users_controller_create_organization_user(self, orgId, email, username=None, weekday=None, brandColor=None, darkBrandColor=None, hideBranding=None, timeZone=None, theme=None, appTheme=None, timeFormat=None, defaultScheduleId=None, locale="en", avatarUrl=None, organizationRole="MEMBER", autoAccept=True) -> dict[str, Any]:
+    def create_org_user(self, orgId: str, email: str, username: Optional[str] = None, weekday: Optional[str] = None, brandColor: Optional[str] = None, darkBrandColor: Optional[str] = None, hideBranding: Optional[bool] = None, timeZone: Optional[str] = None, theme: Optional[str] = None, appTheme: Optional[str] = None, timeFormat: Optional[float] = None, defaultScheduleId: Optional[float] = None, locale: Optional[str] = None, avatarUrl: Optional[str] = None, organizationRole: Optional[str] = None, autoAccept: Optional[bool] = None) -> dict[str, Any]:
         """
         Creates a new user within an organization using the provided organization ID.
 
@@ -1799,12 +2351,17 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Users
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'orgId'.")
+        request_body_data = None
+        request_body_data = {
             'email': email,
             'username': username,
             'weekday': weekday,
@@ -1821,14 +2378,19 @@ class CalComV2App(APIApplication):
             'organizationRole': organizationRole,
             'autoAccept': autoAccept,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/users"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_users_controller_delete_organization_user(self, orgId, userId) -> dict[str, Any]:
+    def delete_member_by_id(self, orgId: str, userId: str) -> dict[str, Any]:
         """
         Deletes a user with the specified user ID from an organization identified by the provided organization ID using the DELETE method, returning a status message upon success.
 
@@ -1839,20 +2401,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Users
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if userId is None:
-            raise ValueError("Missing required parameter 'userId'")
+            raise ValueError("Missing required parameter 'userId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/users/{userId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_webhooks_controller_get_all_organization_webhooks(self, orgId, take=None, skip=None) -> dict[str, Any]:
+    def get_org_webhooks(self, orgId: str, take: Optional[float] = None, skip: Optional[float] = None) -> dict[str, Any]:
         """
         Retrieves a list of webhooks for the specified organization, supporting pagination through skip and take parameters.
 
@@ -1864,18 +2435,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Webhooks
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/webhooks"
         query_params = {k: v for k, v in [('take', take), ('skip', skip)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_webhooks_controller_create_organization_webhook(self, orgId, active, subscriberUrl, triggers, payloadTemplate=None, secret=None) -> dict[str, Any]:
+    def create_webhook(self, orgId: str, active: bool, subscriberUrl: str, triggers: str, payloadTemplate: Optional[str] = None, secret: Optional[str] = None) -> dict[str, Any]:
         """
         Creates an organization webhook that triggers HTTP POST payloads for specified events and returns a success status on creation.
 
@@ -1890,26 +2470,36 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Webhooks
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'orgId'.")
+        request_body_data = None
+        request_body_data = {
             'payloadTemplate': payloadTemplate,
             'active': active,
             'subscriberUrl': subscriberUrl,
             'triggers': triggers,
             'secret': secret,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/webhooks"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_webhooks_controller_get_organization_webhook(self, orgId, webhookId) -> dict[str, Any]:
+    def get_organization_webhook_by_id(self, orgId: str, webhookId: str) -> dict[str, Any]:
         """
         Retrieves information about a specific webhook identified by `webhookId` for an organization specified by `orgId`.
 
@@ -1920,20 +2510,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Webhooks
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if webhookId is None:
-            raise ValueError("Missing required parameter 'webhookId'")
+            raise ValueError("Missing required parameter 'webhookId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/webhooks/{webhookId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_webhooks_controller_delete_webhook(self, orgId, webhookId) -> dict[str, Any]:
+    def delete_organization_webhook_by_id(self, orgId: str, webhookId: str) -> dict[str, Any]:
         """
         Deletes a specified webhook from an organization using the provided organization and webhook identifiers.
 
@@ -1944,20 +2543,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Webhooks
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if webhookId is None:
-            raise ValueError("Missing required parameter 'webhookId'")
+            raise ValueError("Missing required parameter 'webhookId'.")
         url = f"{self.base_url}/v2/organizations/{orgId}/webhooks/{webhookId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def organizations_webhooks_controller_update_org_webhook(self, orgId, webhookId, payloadTemplate=None, active=None, subscriberUrl=None, triggers=None, secret=None) -> dict[str, Any]:
+    def update_webhook_by_id(self, orgId: str, webhookId: str, payloadTemplate: Optional[str] = None, active: Optional[bool] = None, subscriberUrl: Optional[str] = None, triggers: Optional[str] = None, secret: Optional[str] = None) -> dict[str, Any]:
         """
         Updates a specific webhook for an organization using partial modifications via the PATCH method.
 
@@ -1973,28 +2581,38 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Orgs / Webhooks
         """
         if orgId is None:
-            raise ValueError("Missing required parameter 'orgId'")
+            raise ValueError("Missing required parameter 'orgId'.")
         if webhookId is None:
-            raise ValueError("Missing required parameter 'webhookId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'webhookId'.")
+        request_body_data = None
+        request_body_data = {
             'payloadTemplate': payloadTemplate,
             'active': active,
             'subscriberUrl': subscriberUrl,
             'triggers': triggers,
             'secret': secret,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/organizations/{orgId}/webhooks/{webhookId}"
         query_params = {}
-        response = self._patch(url, data=request_body, params=query_params)
+        response = self._patch(url, data=request_body_data, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def bookings_controller_2024_08_13_get_bookings(self, status=None, attendeeEmail=None, attendeeName=None, eventTypeIds=None, eventTypeId=None, teamsIds=None, teamId=None, afterStart=None, beforeEnd=None, sortStart=None, sortEnd=None, sortCreated=None, take=None, skip=None) -> dict[str, Any]:
+    def list_bookings(self, status: Optional[List[str]] = None, attendeeEmail: Optional[str] = None, attendeeName: Optional[str] = None, eventTypeIds: Optional[str] = None, eventTypeId: Optional[str] = None, teamsIds: Optional[str] = None, teamId: Optional[str] = None, afterStart: Optional[str] = None, beforeEnd: Optional[str] = None, sortStart: Optional[str] = None, sortEnd: Optional[str] = None, sortCreated: Optional[str] = None, take: Optional[float] = None, skip: Optional[float] = None) -> dict[str, Any]:
         """
         Retrieves a filtered list of bookings based on parameters like status, attendee details, event types, time ranges, and pagination settings.
 
@@ -2017,6 +2635,10 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Bookings
         """
@@ -2024,9 +2646,14 @@ class CalComV2App(APIApplication):
         query_params = {k: v for k, v in [('status', status), ('attendeeEmail', attendeeEmail), ('attendeeName', attendeeName), ('eventTypeIds', eventTypeIds), ('eventTypeId', eventTypeId), ('teamsIds', teamsIds), ('teamId', teamId), ('afterStart', afterStart), ('beforeEnd', beforeEnd), ('sortStart', sortStart), ('sortEnd', sortEnd), ('sortCreated', sortCreated), ('take', take), ('skip', skip)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def bookings_controller_2024_08_13_get_booking(self, bookingUid) -> dict[str, Any]:
+    def get_booking_by_uid(self, bookingUid: str) -> dict[str, Any]:
         """
         Retrieves the details of a specific booking using its unique identifier.
 
@@ -2036,18 +2663,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Bookings
         """
         if bookingUid is None:
-            raise ValueError("Missing required parameter 'bookingUid'")
+            raise ValueError("Missing required parameter 'bookingUid'.")
         url = f"{self.base_url}/v2/bookings/{bookingUid}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def bookings_controller_2024_08_13_reschedule_booking(self, bookingUid) -> dict[str, Any]:
+    def reschedule_booking_by_uid(self, bookingUid: str) -> dict[str, Any]:
         """
         Reschedules an existing booking identified by its unique `bookingUid`, using the `POST` method at the "/v2/bookings/{bookingUid}/reschedule" endpoint.
 
@@ -2057,18 +2693,28 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Bookings
         """
         if bookingUid is None:
-            raise ValueError("Missing required parameter 'bookingUid'")
+            raise ValueError("Missing required parameter 'bookingUid'.")
+        request_body_data = None
         url = f"{self.base_url}/v2/bookings/{bookingUid}/reschedule"
         query_params = {}
-        response = self._post(url, data={}, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def bookings_controller_2024_08_13_cancel_booking(self, bookingUid) -> dict[str, Any]:
+    def cancel_booking_by_uid(self, bookingUid: str) -> dict[str, Any]:
         """
         Cancels a booking by sending a POST request to the "/v2/bookings/{bookingUid}/cancel" endpoint, using the provided booking UID to identify the booking to be canceled.
 
@@ -2078,18 +2724,28 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Bookings
         """
         if bookingUid is None:
-            raise ValueError("Missing required parameter 'bookingUid'")
+            raise ValueError("Missing required parameter 'bookingUid'.")
+        request_body_data = None
         url = f"{self.base_url}/v2/bookings/{bookingUid}/cancel"
         query_params = {}
-        response = self._post(url, data={}, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def bookings_controller_2024_08_13_mark_no_show(self, bookingUid, host=None, attendees=None) -> dict[str, Any]:
+    def mark_booking_absent_by_uid(self, bookingUid: str, host: Optional[bool] = None, attendees: Optional[List[dict[str, Any]]] = None) -> dict[str, Any]:
         """
         Marks a booking as absent using the provided booking UID and authentication token, indicating that the owner of the booking is absent.
 
@@ -2101,23 +2757,33 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Bookings
         """
         if bookingUid is None:
-            raise ValueError("Missing required parameter 'bookingUid'")
-        request_body = {
+            raise ValueError("Missing required parameter 'bookingUid'.")
+        request_body_data = None
+        request_body_data = {
             'host': host,
             'attendees': attendees,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/bookings/{bookingUid}/mark-absent"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def bookings_controller_2024_08_13_reassign_booking(self, bookingUid) -> dict[str, Any]:
+    def reassign_booking(self, bookingUid: str) -> dict[str, Any]:
         """
         Reassigns a booking to a different team member or booking page via a POST request to the specified booking UID, potentially allowing double bookings if availability conflicts exist.
 
@@ -2127,18 +2793,28 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Bookings
         """
         if bookingUid is None:
-            raise ValueError("Missing required parameter 'bookingUid'")
+            raise ValueError("Missing required parameter 'bookingUid'.")
+        request_body_data = None
         url = f"{self.base_url}/v2/bookings/{bookingUid}/reassign"
         query_params = {}
-        response = self._post(url, data={}, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def bookings_controller_2024_08_13_reassign_booking_to_user(self, bookingUid, userId, reason=None) -> dict[str, Any]:
+    def reassign_booking_to_user(self, bookingUid: str, userId: str, reason: Optional[str] = None) -> dict[str, Any]:
         """
         Reassigns a booking to a specific user specified by the `userId` using a POST request, requiring authorization and providing a reason for the reassignment.
 
@@ -2150,24 +2826,34 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Bookings
         """
         if bookingUid is None:
-            raise ValueError("Missing required parameter 'bookingUid'")
+            raise ValueError("Missing required parameter 'bookingUid'.")
         if userId is None:
-            raise ValueError("Missing required parameter 'userId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'userId'.")
+        request_body_data = None
+        request_body_data = {
             'reason': reason,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/bookings/{bookingUid}/reassign/{userId}"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def bookings_controller_2024_08_13_confirm_booking(self, bookingUid) -> dict[str, Any]:
+    def confirm_booking(self, bookingUid: str) -> dict[str, Any]:
         """
         Confirms a specific booking by its unique identifier and returns a success status upon completion.
 
@@ -2177,18 +2863,28 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Bookings
         """
         if bookingUid is None:
-            raise ValueError("Missing required parameter 'bookingUid'")
+            raise ValueError("Missing required parameter 'bookingUid'.")
+        request_body_data = None
         url = f"{self.base_url}/v2/bookings/{bookingUid}/confirm"
         query_params = {}
-        response = self._post(url, data={}, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def bookings_controller_2024_08_13_decline_booking(self, bookingUid, reason=None) -> dict[str, Any]:
+    def decline_booking(self, bookingUid: str, reason: Optional[str] = None) -> dict[str, Any]:
         """
         Declines a specific booking identified by the bookingUid using the Booking.com API and returns a success status upon completion.
 
@@ -2199,22 +2895,32 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Bookings
         """
         if bookingUid is None:
-            raise ValueError("Missing required parameter 'bookingUid'")
-        request_body = {
+            raise ValueError("Missing required parameter 'bookingUid'.")
+        request_body_data = None
+        request_body_data = {
             'reason': reason,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/bookings/{bookingUid}/decline"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def calendars_controller_create_ics_feed(self, urls, readOnly=True) -> dict[str, Any]:
+    def save_ics_feed_post(self, urls: List[str], readOnly: Optional[bool] = None) -> dict[str, Any]:
         """
         Saves an ICS calendar feed configuration and returns the created resource.
 
@@ -2225,26 +2931,40 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Calendars
         """
-        request_body = {
+        request_body_data = None
+        request_body_data = {
             'urls': urls,
             'readOnly': readOnly,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/calendars/ics-feed/save"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def calendars_controller_check_ics_feed(self) -> dict[str, Any]:
+    def check_ics_feed(self) -> dict[str, Any]:
         """
         Checks the status and validity of an ICS calendar feed.
 
         Returns:
             dict[str, Any]: API response data.
+
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
 
         Tags:
             Calendars
@@ -2253,9 +2973,14 @@ class CalComV2App(APIApplication):
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def calendars_controller_get_busy_times(self, loggedInUsersTz, credentialId, externalId, dateFrom=None, dateTo=None) -> dict[str, Any]:
+    def get_calendars_busy_times(self, loggedInUsersTz: str, credentialId: float, externalId: str, dateFrom: Optional[str] = None, dateTo: Optional[str] = None) -> dict[str, Any]:
         """
         Retrieves a list of busy times for specified calendars within a given date range using the "GET" method at "/v2/calendars/busy-times," allowing for time zone and credential specification.
 
@@ -2269,6 +2994,10 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Calendars
         """
@@ -2276,14 +3005,23 @@ class CalComV2App(APIApplication):
         query_params = {k: v for k, v in [('loggedInUsersTz', loggedInUsersTz), ('dateFrom', dateFrom), ('dateTo', dateTo), ('credentialId', credentialId), ('externalId', externalId)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def calendars_controller_get_calendars(self) -> dict[str, Any]:
+    def get_calendars(self) -> dict[str, Any]:
         """
         Retrieves a list of calendars using the API at the "/v2/calendars" endpoint via the GET method.
 
         Returns:
             dict[str, Any]: API response data.
+
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
 
         Tags:
             Calendars
@@ -2292,9 +3030,14 @@ class CalComV2App(APIApplication):
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def calendars_controller_redirect(self, calendar) -> dict[str, Any]:
+    def calendars_controller_redirect(self, calendar: str) -> dict[str, Any]:
         """
         Retrieves a connection status for the specified calendar at path "/v2/calendars/{calendar}/connect" using the GET method, requiring authorization and calendar identifier.
 
@@ -2304,18 +3047,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Calendars
         """
         if calendar is None:
-            raise ValueError("Missing required parameter 'calendar'")
+            raise ValueError("Missing required parameter 'calendar'.")
         url = f"{self.base_url}/v2/calendars/{calendar}/connect"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def calendars_controller_save(self, calendar, state, code) -> Any:
+    def calendars_controller_save(self, calendar: str, state: str, code: str) -> Any:
         """
         Retrieves the saved state of a specified calendar using the given parameters.
 
@@ -2327,18 +3079,27 @@ class CalComV2App(APIApplication):
         Returns:
             Any: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Calendars
         """
         if calendar is None:
-            raise ValueError("Missing required parameter 'calendar'")
+            raise ValueError("Missing required parameter 'calendar'.")
         url = f"{self.base_url}/v2/calendars/{calendar}/save"
         query_params = {k: v for k, v in [('state', state), ('code', code)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def calendars_controller_sync_credentials(self, calendar) -> Any:
+    def create_calendar_credentials(self, calendar: str) -> Any:
         """
         Creates credentials for a specified Google Calendar using the POST method at the "/v2/calendars/{calendar}/credentials" path.
 
@@ -2348,18 +3109,28 @@ class CalComV2App(APIApplication):
         Returns:
             Any: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Calendars
         """
         if calendar is None:
-            raise ValueError("Missing required parameter 'calendar'")
+            raise ValueError("Missing required parameter 'calendar'.")
+        request_body_data = None
         url = f"{self.base_url}/v2/calendars/{calendar}/credentials"
         query_params = {}
-        response = self._post(url, data={}, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def calendars_controller_check(self, calendar) -> dict[str, Any]:
+    def calendars_controller_check(self, calendar: str) -> dict[str, Any]:
         """
         Checks the status or availability of a specified calendar using the "GET" method at the "/v2/calendars/{calendar}/check" endpoint.
 
@@ -2369,18 +3140,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Calendars
         """
         if calendar is None:
-            raise ValueError("Missing required parameter 'calendar'")
+            raise ValueError("Missing required parameter 'calendar'.")
         url = f"{self.base_url}/v2/calendars/{calendar}/check"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def calendars_controller_delete_calendar_credentials(self, calendar, id) -> dict[str, Any]:
+    def disconnect_calendar(self, calendar: str, id: int) -> dict[str, Any]:
         """
         Disconnects a specified calendar from a user's account using the Cal.com API, requiring a POST request to the "/v2/calendars/{calendar}/disconnect" endpoint with the calendar type and credential ID in the request body.
 
@@ -2391,22 +3171,32 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Calendars
         """
         if calendar is None:
-            raise ValueError("Missing required parameter 'calendar'")
-        request_body = {
+            raise ValueError("Missing required parameter 'calendar'.")
+        request_body_data = None
+        request_body_data = {
             'id': id,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/calendars/{calendar}/disconnect"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def conferencing_controller_connect(self, app) -> dict[str, Any]:
+    def conferencing_controller_connect(self, app: str) -> dict[str, Any]:
         """
         Establishes a connection for conferencing using the specified application via the POST method at the "/v2/conferencing/{app}/connect" endpoint.
 
@@ -2416,18 +3206,28 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Conferencing
         """
         if app is None:
-            raise ValueError("Missing required parameter 'app'")
+            raise ValueError("Missing required parameter 'app'.")
+        request_body_data = None
         url = f"{self.base_url}/v2/conferencing/{app}/connect"
         query_params = {}
-        response = self._post(url, data={}, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def conferencing_controller_redirect(self, app, returnTo, onErrorReturnTo) -> dict[str, Any]:
+    def get_auth_url(self, app: str, returnTo: str, onErrorReturnTo: str) -> dict[str, Any]:
         """
         Generates an authorization URL for OAuth in a conferencing application using the "GET" method at the "/v2/conferencing/{app}/oauth/auth-url" path, accepting parameters such as the application name and return URLs.
 
@@ -2439,18 +3239,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Conferencing
         """
         if app is None:
-            raise ValueError("Missing required parameter 'app'")
+            raise ValueError("Missing required parameter 'app'.")
         url = f"{self.base_url}/v2/conferencing/{app}/oauth/auth-url"
         query_params = {k: v for k, v in [('returnTo', returnTo), ('onErrorReturnTo', onErrorReturnTo)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def conferencing_controller_save(self, app, state, code) -> Any:
+    def conferencing_controller_save(self, app: str, state: str, code: str) -> Any:
         """
         Handles OAuth authorization callbacks for conferencing applications, processing authorization codes and states to authenticate users via the "GET" method.
 
@@ -2462,23 +3271,36 @@ class CalComV2App(APIApplication):
         Returns:
             Any: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Conferencing
         """
         if app is None:
-            raise ValueError("Missing required parameter 'app'")
+            raise ValueError("Missing required parameter 'app'.")
         url = f"{self.base_url}/v2/conferencing/{app}/oauth/callback"
         query_params = {k: v for k, v in [('state', state), ('code', code)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def conferencing_controller_list_installed_conferencing_apps(self) -> dict[str, Any]:
+    def list_conferencing(self) -> dict[str, Any]:
         """
         Retrieves conferencing data using the "GET" method at the "/v2/conferencing" endpoint, returning relevant information.
 
         Returns:
             dict[str, Any]: API response data.
+
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
 
         Tags:
             Conferencing
@@ -2487,9 +3309,14 @@ class CalComV2App(APIApplication):
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def conferencing_controller_default(self, app) -> dict[str, Any]:
+    def conferencing_controller_default(self, app: str) -> dict[str, Any]:
         """
         Sets the default conferencing application for the specified app identifier.
 
@@ -2499,23 +3326,37 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Conferencing
         """
         if app is None:
-            raise ValueError("Missing required parameter 'app'")
+            raise ValueError("Missing required parameter 'app'.")
+        request_body_data = None
         url = f"{self.base_url}/v2/conferencing/{app}/default"
         query_params = {}
-        response = self._post(url, data={}, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def conferencing_controller_get_default(self) -> dict[str, Any]:
+    def get_default_conferencing(self) -> dict[str, Any]:
         """
         Retrieves the default conferencing configuration from the API.
 
         Returns:
             dict[str, Any]: API response data.
+
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
 
         Tags:
             Conferencing
@@ -2524,9 +3365,14 @@ class CalComV2App(APIApplication):
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def conferencing_controller_disconnect(self, app) -> dict[str, Any]:
+    def disconnect_conferencing_app(self, app: str) -> dict[str, Any]:
         """
         Disconnects all participants from a specified conferencing application instance using the path parameter and returns a success response upon completion.
 
@@ -2536,18 +3382,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Conferencing
         """
         if app is None:
-            raise ValueError("Missing required parameter 'app'")
+            raise ValueError("Missing required parameter 'app'.")
         url = f"{self.base_url}/v2/conferencing/{app}/disconnect"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def destination_calendars_controller_update_destination_calendars(self, integration, externalId) -> dict[str, Any]:
+    def update_destination_calendars(self, integration: str, externalId: str) -> dict[str, Any]:
         """
         Updates a destination calendar at the specified path "/v2/destination-calendars" using the PUT method.
 
@@ -2558,21 +3413,31 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Destination Calendars
         """
-        request_body = {
+        request_body_data = None
+        request_body_data = {
             'integration': integration,
             'externalId': externalId,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/destination-calendars"
         query_params = {}
-        response = self._put(url, data=request_body, params=query_params)
+        response = self._put(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def event_types_controller_2024_06_14_get_event_types(self, username=None, eventSlug=None, usernames=None, orgSlug=None, orgId=None) -> dict[str, Any]:
+    def list_event_types(self, username: Optional[str] = None, eventSlug: Optional[str] = None, usernames: Optional[str] = None, orgSlug: Optional[str] = None, orgId: Optional[float] = None) -> dict[str, Any]:
         """
         Retrieves a list of event types using the GET method, allowing filtering by username, event slug, usernames list, organization slug, and organization ID through query parameters.
 
@@ -2586,6 +3451,10 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Event Types
         """
@@ -2593,9 +3462,14 @@ class CalComV2App(APIApplication):
         query_params = {k: v for k, v in [('username', username), ('eventSlug', eventSlug), ('usernames', usernames), ('orgSlug', orgSlug), ('orgId', orgId)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def event_types_controller_2024_06_14_get_event_type_by_id(self, eventTypeId) -> dict[str, Any]:
+    def get_event_type_by_id(self, eventTypeId: str) -> dict[str, Any]:
         """
         Retrieves detailed information about a specific event type by its ID using the Events API.
 
@@ -2605,18 +3479,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Event Types
         """
         if eventTypeId is None:
-            raise ValueError("Missing required parameter 'eventTypeId'")
+            raise ValueError("Missing required parameter 'eventTypeId'.")
         url = f"{self.base_url}/v2/event-types/{eventTypeId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def event_types_controller_2024_06_14_delete_event_type(self, eventTypeId) -> dict[str, Any]:
+    def delete_event_type_by_id(self, eventTypeId: str) -> dict[str, Any]:
         """
         Deletes the specified event type using the provided ID and returns a success status upon completion.
 
@@ -2626,18 +3509,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Event Types
         """
         if eventTypeId is None:
-            raise ValueError("Missing required parameter 'eventTypeId'")
+            raise ValueError("Missing required parameter 'eventTypeId'.")
         url = f"{self.base_url}/v2/event-types/{eventTypeId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def event_type_webhooks_controller_create_event_type_webhook(self, eventTypeId, active, subscriberUrl, triggers, payloadTemplate=None, secret=None) -> dict[str, Any]:
+    def create_event_type_webhook(self, eventTypeId: str, active: bool, subscriberUrl: str, triggers: str, payloadTemplate: Optional[str] = None, secret: Optional[str] = None) -> dict[str, Any]:
         """
         Creates a webhook subscription for a specific event type, returning a success status upon creation.
 
@@ -2652,26 +3544,36 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Event Types / Webhooks
         """
         if eventTypeId is None:
-            raise ValueError("Missing required parameter 'eventTypeId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'eventTypeId'.")
+        request_body_data = None
+        request_body_data = {
             'payloadTemplate': payloadTemplate,
             'active': active,
             'subscriberUrl': subscriberUrl,
             'triggers': triggers,
             'secret': secret,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/event-types/{eventTypeId}/webhooks"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def event_type_webhooks_controller_get_event_type_webhooks(self, eventTypeId, take=None, skip=None) -> dict[str, Any]:
+    def get_event_webhooks(self, eventTypeId: str, take: Optional[float] = None, skip: Optional[float] = None) -> dict[str, Any]:
         """
         Retrieves a list of webhooks configured for a specific event type, supporting pagination via take and skip parameters.
 
@@ -2683,18 +3585,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Event Types / Webhooks
         """
         if eventTypeId is None:
-            raise ValueError("Missing required parameter 'eventTypeId'")
+            raise ValueError("Missing required parameter 'eventTypeId'.")
         url = f"{self.base_url}/v2/event-types/{eventTypeId}/webhooks"
         query_params = {k: v for k, v in [('take', take), ('skip', skip)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def event_type_webhooks_controller_delete_all_event_type_webhooks(self, eventTypeId) -> dict[str, Any]:
+    def delete_event_webhook(self, eventTypeId: str) -> dict[str, Any]:
         """
         Deletes a webhook associated with a specific event type ID using the DELETE method.
 
@@ -2704,18 +3615,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Event Types / Webhooks
         """
         if eventTypeId is None:
-            raise ValueError("Missing required parameter 'eventTypeId'")
+            raise ValueError("Missing required parameter 'eventTypeId'.")
         url = f"{self.base_url}/v2/event-types/{eventTypeId}/webhooks"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def event_type_webhooks_controller_update_event_type_webhook(self, eventTypeId, webhookId, payloadTemplate=None, active=None, subscriberUrl=None, triggers=None, secret=None) -> dict[str, Any]:
+    def patch_event_type_webhook_by_id(self, eventTypeId: str, webhookId: str, payloadTemplate: Optional[str] = None, active: Optional[bool] = None, subscriberUrl: Optional[str] = None, triggers: Optional[str] = None, secret: Optional[str] = None) -> dict[str, Any]:
         """
         Updates a webhook associated with a specific event type using the PATCH method, modifying its properties at the path "/v2/event-types/{eventTypeId}/webhooks/{webhookId}".
 
@@ -2731,28 +3651,38 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Event Types / Webhooks
         """
         if eventTypeId is None:
-            raise ValueError("Missing required parameter 'eventTypeId'")
+            raise ValueError("Missing required parameter 'eventTypeId'.")
         if webhookId is None:
-            raise ValueError("Missing required parameter 'webhookId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'webhookId'.")
+        request_body_data = None
+        request_body_data = {
             'payloadTemplate': payloadTemplate,
             'active': active,
             'subscriberUrl': subscriberUrl,
             'triggers': triggers,
             'secret': secret,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/event-types/{eventTypeId}/webhooks/{webhookId}"
         query_params = {}
-        response = self._patch(url, data=request_body, params=query_params)
+        response = self._patch(url, data=request_body_data, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def event_type_webhooks_controller_get_event_type_webhook(self, eventTypeId, webhookId) -> dict[str, Any]:
+    def get_webhook_by_id(self, eventTypeId: str, webhookId: str) -> dict[str, Any]:
         """
         Retrieves details about a specific webhook for a given event type using the provided event type ID and webhook ID.
 
@@ -2763,20 +3693,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Event Types / Webhooks
         """
         if eventTypeId is None:
-            raise ValueError("Missing required parameter 'eventTypeId'")
+            raise ValueError("Missing required parameter 'eventTypeId'.")
         if webhookId is None:
-            raise ValueError("Missing required parameter 'webhookId'")
+            raise ValueError("Missing required parameter 'webhookId'.")
         url = f"{self.base_url}/v2/event-types/{eventTypeId}/webhooks/{webhookId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def event_type_webhooks_controller_delete_event_type_webhook(self, eventTypeId, webhookId) -> dict[str, Any]:
+    def delete_event_type_webhook_by_id(self, eventTypeId: str, webhookId: str) -> dict[str, Any]:
         """
         Deletes a webhook associated with a specific event type using the provided `eventTypeId` and `webhookId` parameters.
 
@@ -2787,18 +3726,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Event Types / Webhooks
         """
         if eventTypeId is None:
-            raise ValueError("Missing required parameter 'eventTypeId'")
+            raise ValueError("Missing required parameter 'eventTypeId'.")
         if webhookId is None:
-            raise ValueError("Missing required parameter 'webhookId'")
+            raise ValueError("Missing required parameter 'webhookId'.")
         url = f"{self.base_url}/v2/event-types/{eventTypeId}/webhooks/{webhookId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
     def me_controller_get_me(self) -> dict[str, Any]:
         """
@@ -2807,6 +3755,10 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Me
         """
@@ -2814,9 +3766,14 @@ class CalComV2App(APIApplication):
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def me_controller_update_me(self, email=None, name=None, timeFormat=None, defaultScheduleId=None, weekStart=None, timeZone=None, locale=None, avatarUrl=None) -> dict[str, Any]:
+    def me_controller_update_me(self, email: Optional[str] = None, name: Optional[str] = None, timeFormat: Optional[float] = None, defaultScheduleId: Optional[float] = None, weekStart: Optional[str] = None, timeZone: Optional[str] = None, locale: Optional[str] = None, avatarUrl: Optional[str] = None) -> dict[str, Any]:
         """
         Updates the properties of the current user's profile at the "/v2/me" path using the PATCH method.
 
@@ -2833,10 +3790,15 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Me
         """
-        request_body = {
+        request_body_data = None
+        request_body_data = {
             'email': email,
             'name': name,
             'timeFormat': timeFormat,
@@ -2846,14 +3808,19 @@ class CalComV2App(APIApplication):
             'locale': locale,
             'avatarUrl': avatarUrl,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/me"
         query_params = {}
-        response = self._patch(url, data=request_body, params=query_params)
+        response = self._patch(url, data=request_body_data, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def schedules_controller_2024_06_11_create_schedule(self, name, timeZone, isDefault, availability=None, overrides=None) -> dict[str, Any]:
+    def create_schedule(self, name: str, timeZone: str, isDefault: bool, availability: Optional[List[dict[str, Any]]] = None, overrides: Optional[List[dict[str, Any]]] = None) -> dict[str, Any]:
         """
         Creates a new schedule using the provided data and returns a successful creation response with a 201 status code.
 
@@ -2868,29 +3835,43 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Schedules
         """
-        request_body = {
+        request_body_data = None
+        request_body_data = {
             'name': name,
             'timeZone': timeZone,
             'availability': availability,
             'isDefault': isDefault,
             'overrides': overrides,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/schedules"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def schedules_controller_2024_06_11_get_schedules(self) -> dict[str, Any]:
+    def list_schedules(self) -> dict[str, Any]:
         """
         Retrieves a list of schedules using specified authorization headers and API version.
 
         Returns:
             dict[str, Any]: API response data.
+
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
 
         Tags:
             Schedules
@@ -2899,14 +3880,23 @@ class CalComV2App(APIApplication):
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def schedules_controller_2024_06_11_get_default_schedule(self) -> dict[str, Any]:
+    def get_default_schedule(self) -> dict[str, Any]:
         """
         Retrieves the default schedule of the authenticated user using the Cal.com API, returning relevant scheduling information.
 
         Returns:
             dict[str, Any]: API response data.
+
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
 
         Tags:
             Schedules
@@ -2915,9 +3905,14 @@ class CalComV2App(APIApplication):
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def schedules_controller_2024_06_11_get_schedule(self, scheduleId) -> dict[str, Any]:
+    def get_schedule_by_id(self, scheduleId: str) -> dict[str, Any]:
         """
         Retrieves a specific schedule by its ID using the "GET" method at the "/v2/schedules/{scheduleId}" endpoint.
 
@@ -2927,18 +3922,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Schedules
         """
         if scheduleId is None:
-            raise ValueError("Missing required parameter 'scheduleId'")
+            raise ValueError("Missing required parameter 'scheduleId'.")
         url = f"{self.base_url}/v2/schedules/{scheduleId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def schedules_controller_2024_06_11_update_schedule(self, scheduleId, name=None, timeZone=None, availability=None, isDefault=None, overrides=None) -> dict[str, Any]:
+    def update_schedule_by_id(self, scheduleId: str, name: Optional[str] = None, timeZone: Optional[str] = None, availability: Optional[List[dict[str, Any]]] = None, isDefault: Optional[bool] = None, overrides: Optional[List[dict[str, Any]]] = None) -> dict[str, Any]:
         """
         Updates a schedule's configuration partially by specifying scheduleId and modified fields in the request body, returning a success status upon completion.
 
@@ -2953,26 +3957,36 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Schedules
         """
         if scheduleId is None:
-            raise ValueError("Missing required parameter 'scheduleId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'scheduleId'.")
+        request_body_data = None
+        request_body_data = {
             'name': name,
             'timeZone': timeZone,
             'availability': availability,
             'isDefault': isDefault,
             'overrides': overrides,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/schedules/{scheduleId}"
         query_params = {}
-        response = self._patch(url, data=request_body, params=query_params)
+        response = self._patch(url, data=request_body_data, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def schedules_controller_2024_06_11_delete_schedule(self, scheduleId) -> dict[str, Any]:
+    def delete_schedule_by_id(self, scheduleId: str) -> dict[str, Any]:
         """
         Deletes a specific schedule identified by the `scheduleId` using the `DELETE` method.
 
@@ -2982,18 +3996,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Schedules
         """
         if scheduleId is None:
-            raise ValueError("Missing required parameter 'scheduleId'")
+            raise ValueError("Missing required parameter 'scheduleId'.")
         url = f"{self.base_url}/v2/schedules/{scheduleId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def selected_calendars_controller_add_selected_calendar(self, integration, externalId, credentialId) -> dict[str, Any]:
+    def add_selected_calendar(self, integration: str, externalId: str, credentialId: float) -> dict[str, Any]:
         """
         Creates a new selected calendar entry for external integrations using provided identifiers.
 
@@ -3005,22 +4028,32 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Selected Calendars
         """
-        request_body = {
+        request_body_data = None
+        request_body_data = {
             'integration': integration,
             'externalId': externalId,
             'credentialId': credentialId,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/selected-calendars"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def selected_calendars_controller_remove_selected_calendar(self, integration, externalId, credentialId) -> dict[str, Any]:
+    def delete_selected_calendars(self, integration: str, externalId: str, credentialId: str) -> dict[str, Any]:
         """
         Deletes one or more selected calendars based on integration, external ID, and credential ID using the DELETE method at the "/v2/selected-calendars" path.
 
@@ -3032,6 +4065,10 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Selected Calendars
         """
@@ -3039,9 +4076,14 @@ class CalComV2App(APIApplication):
         query_params = {k: v for k, v in [('integration', integration), ('externalId', externalId), ('credentialId', credentialId)] if v is not None}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def slots_controller_reserve_slot(self, eventTypeId, slotUtcStartDate, slotUtcEndDate, bookingUid=None) -> dict[str, Any]:
+    def slots_controller_reserve_slot(self, eventTypeId: float, slotUtcStartDate: str, slotUtcEndDate: str, bookingUid: Optional[str] = None) -> dict[str, Any]:
         """
         Reserves a slot using the "POST" method at "/v2/slots/reserve", creating a new reservation and returning a successful response when the operation is completed.
 
@@ -3054,23 +4096,33 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: Successful response returning uid of reserved slot.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Slots
         """
-        request_body = {
+        request_body_data = None
+        request_body_data = {
             'eventTypeId': eventTypeId,
             'slotUtcStartDate': slotUtcStartDate,
             'slotUtcEndDate': slotUtcEndDate,
             'bookingUid': bookingUid,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/slots/reserve"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def slots_controller_delete_selected_slot(self, uid) -> dict[str, Any]:
+    def delete_selected_slot(self, uid: str) -> dict[str, Any]:
         """
         Deletes the specified slot identified by the uid parameter and returns a successful response upon completion.
 
@@ -3080,6 +4132,10 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: Response deleting reserved slot by uid.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Slots
         """
@@ -3087,9 +4143,14 @@ class CalComV2App(APIApplication):
         query_params = {k: v for k, v in [('uid', uid)] if v is not None}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def slots_controller_get_available_slots(self, startTime, endTime, eventTypeId, eventTypeSlug=None, usernameList=None, duration=None, rescheduleUid=None, timeZone=None, orgSlug=None, slotFormat=None) -> dict[str, Any]:
+    def list_available_slots(self, startTime: str, endTime: str, eventTypeId: float, eventTypeSlug: Optional[str] = None, usernameList: Optional[List[str]] = None, duration: Optional[float] = None, rescheduleUid: Optional[str] = None, timeZone: Optional[str] = None, orgSlug: Optional[str] = None, slotFormat: Optional[str] = None) -> dict[str, Any]:
         """
         Retrieves a list of available slots within a specified time range, filtered by event type, user list, and other criteria, using the `GET` method at `/v2/slots/available`.
 
@@ -3108,6 +4169,10 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: Available time slots retrieved successfully
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Slots
         """
@@ -3115,7 +4180,12 @@ class CalComV2App(APIApplication):
         query_params = {k: v for k, v in [('startTime', startTime), ('endTime', endTime), ('eventTypeId', eventTypeId), ('eventTypeSlug', eventTypeSlug), ('usernameList', usernameList), ('duration', duration), ('rescheduleUid', rescheduleUid), ('timeZone', timeZone), ('orgSlug', orgSlug), ('slotFormat', slotFormat)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
     def stripe_controller_redirect(self) -> dict[str, Any]:
         """
@@ -3124,6 +4194,10 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Stripe
         """
@@ -3131,9 +4205,14 @@ class CalComV2App(APIApplication):
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def stripe_controller_save(self, state, code) -> dict[str, Any]:
+    def stripe_controller_save(self, state: str, code: str) -> dict[str, Any]:
         """
         Retrieves a Stripe resource using a state and code query parameter and returns the result upon successful authentication.
 
@@ -3144,6 +4223,10 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Stripe
         """
@@ -3151,7 +4234,12 @@ class CalComV2App(APIApplication):
         query_params = {k: v for k, v in [('state', state), ('code', code)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
     def stripe_controller_check(self) -> dict[str, Any]:
         """
@@ -3160,6 +4248,10 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Stripe
         """
@@ -3167,9 +4259,14 @@ class CalComV2App(APIApplication):
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def stripe_controller_check_team_stripe_connection(self, teamId) -> dict[str, Any]:
+    def get_team_stripe_check(self, teamId: str) -> dict[str, Any]:
         """
         Retrieves Stripe payment or subscription data for a specific team using the provided `teamId` and returns relevant information via a GET request.
 
@@ -3179,18 +4276,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Stripe
         """
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         url = f"{self.base_url}/v2/stripe/check/{teamId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def teams_controller_create_team(self, name, slug=None, logoUrl=None, calVideoLogo=None, appLogo=None, appIconLogo=None, bio=None, hideBranding=False, isPrivate=None, hideBookATeamMember=None, metadata=None, theme=None, brandColor=None, darkBrandColor=None, bannerUrl=None, timeFormat=None, timeZone="Europe/London", weekStart="Sunday", autoAcceptCreator=True) -> dict[str, Any]:
+    def teams_controller_create_team(self, name: str, slug: Optional[str] = None, logoUrl: Optional[str] = None, calVideoLogo: Optional[str] = None, appLogo: Optional[str] = None, appIconLogo: Optional[str] = None, bio: Optional[str] = None, hideBranding: Optional[bool] = None, isPrivate: Optional[bool] = None, hideBookATeamMember: Optional[bool] = None, metadata: Optional[str] = None, theme: Optional[str] = None, brandColor: Optional[str] = None, darkBrandColor: Optional[str] = None, bannerUrl: Optional[str] = None, timeFormat: Optional[float] = None, timeZone: Optional[str] = None, weekStart: Optional[str] = None, autoAcceptCreator: Optional[bool] = None) -> dict[str, Any]:
         """
         Creates a new team using the API and returns a successful response with a 201 status code, indicating the creation of a resource.
 
@@ -3218,10 +4324,15 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Teams
         """
-        request_body = {
+        request_body_data = None
+        request_body_data = {
             'name': name,
             'slug': slug,
             'logoUrl': logoUrl,
@@ -3242,12 +4353,17 @@ class CalComV2App(APIApplication):
             'weekStart': weekStart,
             'autoAcceptCreator': autoAcceptCreator,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/teams"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
     def teams_controller_get_teams(self) -> dict[str, Any]:
         """
@@ -3256,6 +4372,10 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Teams
         """
@@ -3263,9 +4383,14 @@ class CalComV2App(APIApplication):
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def teams_controller_get_team(self, teamId) -> dict[str, Any]:
+    def teams_controller_get_team(self, teamId: str) -> dict[str, Any]:
         """
         Retrieves information about a team specified by the team ID using the GET method.
 
@@ -3275,18 +4400,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Teams
         """
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         url = f"{self.base_url}/v2/teams/{teamId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def teams_controller_update_team(self, teamId, name=None, slug=None, logoUrl=None, calVideoLogo=None, appLogo=None, appIconLogo=None, bio=None, hideBranding=None, isPrivate=None, hideBookATeamMember=None, metadata=None, theme=None, brandColor=None, darkBrandColor=None, bannerUrl=None, timeFormat=None, timeZone=None, weekStart=None, bookingLimits=None, includeManagedEventsInLimits=None) -> dict[str, Any]:
+    def teams_controller_update_team(self, teamId: str, name: Optional[str] = None, slug: Optional[str] = None, logoUrl: Optional[str] = None, calVideoLogo: Optional[str] = None, appLogo: Optional[str] = None, appIconLogo: Optional[str] = None, bio: Optional[str] = None, hideBranding: Optional[bool] = None, isPrivate: Optional[bool] = None, hideBookATeamMember: Optional[bool] = None, metadata: Optional[str] = None, theme: Optional[str] = None, brandColor: Optional[str] = None, darkBrandColor: Optional[str] = None, bannerUrl: Optional[str] = None, timeFormat: Optional[float] = None, timeZone: Optional[str] = None, weekStart: Optional[str] = None, bookingLimits: Optional[str] = None, includeManagedEventsInLimits: Optional[bool] = None) -> dict[str, Any]:
         """
         Updates team configuration details for the specified team ID.
 
@@ -3316,12 +4450,17 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Teams
         """
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'teamId'.")
+        request_body_data = None
+        request_body_data = {
             'name': name,
             'slug': slug,
             'logoUrl': logoUrl,
@@ -3343,14 +4482,19 @@ class CalComV2App(APIApplication):
             'bookingLimits': bookingLimits,
             'includeManagedEventsInLimits': includeManagedEventsInLimits,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/teams/{teamId}"
         query_params = {}
-        response = self._patch(url, data=request_body, params=query_params)
+        response = self._patch(url, data=request_body_data, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def teams_controller_delete_team(self, teamId) -> dict[str, Any]:
+    def teams_controller_delete_team(self, teamId: str) -> dict[str, Any]:
         """
         Deletes a specified team using the provided team ID.
 
@@ -3360,18 +4504,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Teams
         """
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         url = f"{self.base_url}/v2/teams/{teamId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def teams_event_types_controller_create_team_event_type(self, teamId, lengthInMinutes, lengthInMinutesOptions, title, slug, schedulingType, hosts, description=None, locations=None, bookingFields=None, disableGuests=None, slotInterval=None, minimumBookingNotice=None, beforeEventBuffer=None, afterEventBuffer=None, scheduleId=None, bookingLimitsCount=None, onlyShowFirstAvailableSlot=None, bookingLimitsDuration=None, bookingWindow=None, offsetStart=None, bookerLayouts=None, confirmationPolicy=None, recurrence=None, requiresBookerEmailVerification=None, hideCalendarNotes=None, lockTimeZoneToggleOnBookingPage=None, color=None, seats=None, customName=None, destinationCalendar=None, useDestinationCalendarEmail=None, hideCalendarEventDetails=None, successRedirectUrl=None, assignAllTeamMembers=None) -> dict[str, Any]:
+    def create_team_event_type(self, teamId: str, lengthInMinutes: float, lengthInMinutesOptions: List[str], title: str, slug: str, schedulingType: dict[str, Any], hosts: List[dict[str, Any]], description: Optional[str] = None, locations: Optional[List[Any]] = None, bookingFields: Optional[List[Any]] = None, disableGuests: Optional[bool] = None, slotInterval: Optional[float] = None, minimumBookingNotice: Optional[float] = None, beforeEventBuffer: Optional[float] = None, afterEventBuffer: Optional[float] = None, scheduleId: Optional[float] = None, bookingLimitsCount: Optional[Any] = None, onlyShowFirstAvailableSlot: Optional[bool] = None, bookingLimitsDuration: Optional[Any] = None, bookingWindow: Optional[Any] = None, offsetStart: Optional[float] = None, bookerLayouts: Optional[Any] = None, confirmationPolicy: Optional[Any] = None, recurrence: Optional[Any] = None, requiresBookerEmailVerification: Optional[bool] = None, hideCalendarNotes: Optional[bool] = None, lockTimeZoneToggleOnBookingPage: Optional[bool] = None, color: Optional[dict[str, Any]] = None, seats: Optional[Any] = None, customName: Optional[str] = None, destinationCalendar: Optional[dict[str, Any]] = None, useDestinationCalendarEmail: Optional[bool] = None, hideCalendarEventDetails: Optional[bool] = None, successRedirectUrl: Optional[str] = None, assignAllTeamMembers: Optional[bool] = None) -> dict[str, Any]:
         """
         Creates a new event type for a specified team using the API and returns a successful creation status.
 
@@ -3420,12 +4573,17 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Teams / Event Types
         """
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'teamId'.")
+        request_body_data = None
+        request_body_data = {
             'lengthInMinutes': lengthInMinutes,
             'lengthInMinutesOptions': lengthInMinutesOptions,
             'title': title,
@@ -3461,14 +4619,19 @@ class CalComV2App(APIApplication):
             'hosts': hosts,
             'assignAllTeamMembers': assignAllTeamMembers,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/teams/{teamId}/event-types"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def teams_event_types_controller_get_team_event_types(self, teamId, eventSlug=None) -> dict[str, Any]:
+    def get_team_event_types(self, teamId: str, eventSlug: Optional[str] = None) -> dict[str, Any]:
         """
         Retrieves a list of event types for a specified team using the provided team ID and optionally filters by event slug.
 
@@ -3479,18 +4642,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Teams / Event Types
         """
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         url = f"{self.base_url}/v2/teams/{teamId}/event-types"
         query_params = {k: v for k, v in [('eventSlug', eventSlug)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def teams_event_types_controller_get_team_event_type(self, teamId, eventTypeId) -> dict[str, Any]:
+    def get_event_type_by_team_id(self, teamId: str, eventTypeId: str) -> dict[str, Any]:
         """
         Retrieves details about a specific event type within a team using the "GET" method, requiring both team ID and event type ID as path parameters.
 
@@ -3501,20 +4673,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Teams / Event Types
         """
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         if eventTypeId is None:
-            raise ValueError("Missing required parameter 'eventTypeId'")
+            raise ValueError("Missing required parameter 'eventTypeId'.")
         url = f"{self.base_url}/v2/teams/{teamId}/event-types/{eventTypeId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def teams_event_types_controller_delete_team_event_type(self, teamId, eventTypeId) -> dict[str, Any]:
+    def delete_team_event_type_by_id(self, teamId: str, eventTypeId: str) -> dict[str, Any]:
         """
         Deletes a specific event type for a team using the provided path parameters.
 
@@ -3525,20 +4706,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Teams / Event Types
         """
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         if eventTypeId is None:
-            raise ValueError("Missing required parameter 'eventTypeId'")
+            raise ValueError("Missing required parameter 'eventTypeId'.")
         url = f"{self.base_url}/v2/teams/{teamId}/event-types/{eventTypeId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def teams_event_types_controller_create_phone_call(self, teamId, eventTypeId, yourPhoneNumber, numberToCall, calApiKey, enabled, templateType, schedulerName=None, guestName=None, guestEmail=None, guestCompany=None, beginMessage=None, generalPrompt=None) -> dict[str, Any]:
+    def create_phone_call_for_event(self, teamId: str, eventTypeId: str, yourPhoneNumber: str, numberToCall: str, calApiKey: str, enabled: dict[str, Any], templateType: str, schedulerName: Optional[str] = None, guestName: Optional[str] = None, guestEmail: Optional[str] = None, guestCompany: Optional[str] = None, beginMessage: Optional[str] = None, generalPrompt: Optional[str] = None) -> dict[str, Any]:
         """
         Creates a phone call for a specific event type within a team using the "POST" method, returning a successful creation status.
 
@@ -3560,14 +4750,19 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Teams / Event Types
         """
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         if eventTypeId is None:
-            raise ValueError("Missing required parameter 'eventTypeId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'eventTypeId'.")
+        request_body_data = None
+        request_body_data = {
             'yourPhoneNumber': yourPhoneNumber,
             'numberToCall': numberToCall,
             'calApiKey': calApiKey,
@@ -3580,14 +4775,19 @@ class CalComV2App(APIApplication):
             'beginMessage': beginMessage,
             'generalPrompt': generalPrompt,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/teams/{teamId}/event-types/{eventTypeId}/create-phone-call"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def teams_memberships_controller_create_team_membership(self, teamId, userId, accepted=False, role="MEMBER", disableImpersonation=False) -> dict[str, Any]:
+    def add_team_membership(self, teamId: str, userId: float, accepted: Optional[bool] = None, role: Optional[str] = None, disableImpersonation: Optional[bool] = None) -> dict[str, Any]:
         """
         Adds multiple users to a team using their organization membership IDs through a POST request to the specified team endpoint.
 
@@ -3601,25 +4801,35 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Teams / Memberships
         """
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'teamId'.")
+        request_body_data = None
+        request_body_data = {
             'userId': userId,
             'accepted': accepted,
             'role': role,
             'disableImpersonation': disableImpersonation,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/teams/{teamId}/memberships"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def teams_memberships_controller_get_team_memberships(self, teamId, take=None, skip=None) -> dict[str, Any]:
+    def get_team_memberships(self, teamId: str, take: Optional[float] = None, skip: Optional[float] = None) -> dict[str, Any]:
         """
         Retrieves paginated membership details for a specific team using `take` and `skip` parameters to manage results.
 
@@ -3631,18 +4841,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Teams / Memberships
         """
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         url = f"{self.base_url}/v2/teams/{teamId}/memberships"
         query_params = {k: v for k, v in [('take', take), ('skip', skip)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def teams_memberships_controller_get_team_membership(self, teamId, membershipId) -> dict[str, Any]:
+    def get_membership_by_id(self, teamId: str, membershipId: str) -> dict[str, Any]:
         """
         Retrieves the membership details for a specific user in a team using the provided membership ID.
 
@@ -3653,20 +4872,29 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Teams / Memberships
         """
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         if membershipId is None:
-            raise ValueError("Missing required parameter 'membershipId'")
+            raise ValueError("Missing required parameter 'membershipId'.")
         url = f"{self.base_url}/v2/teams/{teamId}/memberships/{membershipId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def teams_memberships_controller_update_team_membership(self, teamId, membershipId, accepted=None, role=None, disableImpersonation=None) -> dict[str, Any]:
+    def update_membership(self, teamId: str, membershipId: str, accepted: Optional[bool] = None, role: Optional[str] = None, disableImpersonation: Optional[bool] = None) -> dict[str, Any]:
         """
         Updates the membership role for a user in a specific team using the GitHub API and returns a success status.
 
@@ -3680,26 +4908,36 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Teams / Memberships
         """
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         if membershipId is None:
-            raise ValueError("Missing required parameter 'membershipId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'membershipId'.")
+        request_body_data = None
+        request_body_data = {
             'accepted': accepted,
             'role': role,
             'disableImpersonation': disableImpersonation,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/teams/{teamId}/memberships/{membershipId}"
         query_params = {}
-        response = self._patch(url, data=request_body, params=query_params)
+        response = self._patch(url, data=request_body_data, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def teams_memberships_controller_delete_team_membership(self, teamId, membershipId) -> dict[str, Any]:
+    def deletegithub_membership_by_id(self, teamId: str, membershipId: str) -> dict[str, Any]:
         """
         Removes a user's team membership in GitHub, requiring admin permissions or organization ownership.
 
@@ -3710,25 +4948,38 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Teams / Memberships
         """
         if teamId is None:
-            raise ValueError("Missing required parameter 'teamId'")
+            raise ValueError("Missing required parameter 'teamId'.")
         if membershipId is None:
-            raise ValueError("Missing required parameter 'membershipId'")
+            raise ValueError("Missing required parameter 'membershipId'.")
         url = f"{self.base_url}/v2/teams/{teamId}/memberships/{membershipId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def timezones_controller_get_time_zones(self) -> dict[str, Any]:
+    def get_timezones(self) -> dict[str, Any]:
         """
         Retrieves a list of time zones with associated metadata, including codes, descriptions, and identifiers.
 
         Returns:
             dict[str, Any]: API response data.
+
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
 
         Tags:
             Timezones
@@ -3737,9 +4988,14 @@ class CalComV2App(APIApplication):
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def webhooks_controller_create_webhook(self, active, subscriberUrl, triggers, payloadTemplate=None, secret=None) -> dict[str, Any]:
+    def createandconfigure_webhook(self, active: bool, subscriberUrl: str, triggers: str, payloadTemplate: Optional[str] = None, secret: Optional[str] = None) -> dict[str, Any]:
         """
         Creates and configures a webhook endpoint to receive HTTP POST notifications for specific events, returning a success response upon creation.
 
@@ -3753,24 +5009,34 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Webhooks
         """
-        request_body = {
+        request_body_data = None
+        request_body_data = {
             'payloadTemplate': payloadTemplate,
             'active': active,
             'subscriberUrl': subscriberUrl,
             'triggers': triggers,
             'secret': secret,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/webhooks"
         query_params = {}
-        response = self._post(url, data=request_body, params=query_params)
+        response = self._post(url, data=request_body_data, params=query_params, content_type='application/json')
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def webhooks_controller_get_webhooks(self, take=None, skip=None) -> dict[str, Any]:
+    def webhooks_controller_get_webhooks(self, take: Optional[float] = None, skip: Optional[float] = None) -> dict[str, Any]:
         """
         Retrieves a list of webhooks, allowing pagination with optional parameters to specify the number of items to take and skip.
 
@@ -3781,6 +5047,10 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Webhooks
         """
@@ -3788,9 +5058,14 @@ class CalComV2App(APIApplication):
         query_params = {k: v for k, v in [('take', take), ('skip', skip)] if v is not None}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def webhooks_controller_update_webhook(self, webhookId, payloadTemplate=None, active=None, subscriberUrl=None, triggers=None, secret=None) -> dict[str, Any]:
+    def patch_webhook(self, webhookId: str, payloadTemplate: Optional[str] = None, active: Optional[bool] = None, subscriberUrl: Optional[str] = None, triggers: Optional[str] = None, secret: Optional[str] = None) -> dict[str, Any]:
         """
         Updates a webhook identified by its ID using the PATCH method to modify its configuration.
 
@@ -3805,26 +5080,36 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Webhooks
         """
         if webhookId is None:
-            raise ValueError("Missing required parameter 'webhookId'")
-        request_body = {
+            raise ValueError("Missing required parameter 'webhookId'.")
+        request_body_data = None
+        request_body_data = {
             'payloadTemplate': payloadTemplate,
             'active': active,
             'subscriberUrl': subscriberUrl,
             'triggers': triggers,
             'secret': secret,
         }
-        request_body = {k: v for k, v in request_body.items() if v is not None}
+        request_body_data = {k: v for k, v in request_body_data.items() if v is not None}
         url = f"{self.base_url}/v2/webhooks/{webhookId}"
         query_params = {}
-        response = self._patch(url, data=request_body, params=query_params)
+        response = self._patch(url, data=request_body_data, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def webhooks_controller_get_webhook(self, webhookId) -> dict[str, Any]:
+    def webhooks_controller_get_webhook(self, webhookId: str) -> dict[str, Any]:
         """
         Retrieves information about a specific webhook identified by its ID using the "GET" method.
 
@@ -3834,18 +5119,27 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Webhooks
         """
         if webhookId is None:
-            raise ValueError("Missing required parameter 'webhookId'")
+            raise ValueError("Missing required parameter 'webhookId'.")
         url = f"{self.base_url}/v2/webhooks/{webhookId}"
         query_params = {}
         response = self._get(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
-    def webhooks_controller_delete_webhook(self, webhookId) -> dict[str, Any]:
+    def delete_user_webhook_by_id(self, webhookId: str) -> dict[str, Any]:
         """
         Deletes a webhook by its ID using the DELETE method at the "/v2/webhooks/{webhookId}" path, removing the specified webhook endpoint.
 
@@ -3855,156 +5149,165 @@ class CalComV2App(APIApplication):
         Returns:
             dict[str, Any]: API response data.
 
+        Raises:
+            HTTPError: Raised when the API request fails (e.g., non-2XX status code).
+            JSONDecodeError: Raised if the response body cannot be parsed as JSON.
+
         Tags:
             Webhooks
         """
         if webhookId is None:
-            raise ValueError("Missing required parameter 'webhookId'")
+            raise ValueError("Missing required parameter 'webhookId'.")
         url = f"{self.base_url}/v2/webhooks/{webhookId}"
         query_params = {}
         response = self._delete(url, params=query_params)
         response.raise_for_status()
-        return response.json()
+        if response.status_code == 204 or not response.content or not response.text.strip():
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return None
 
     def list_tools(self):
         return [
-            self.cal_provider_controller_verify_client_id,
-            self.cal_provider_controller_verify_access_token,
+            self.get_provider_details,
+            self.get_provider_access_token,
             self.gcal_controller_redirect,
             self.gcal_controller_save,
             self.gcal_controller_check,
-            self.oauth_client_users_controller_get_managed_users,
-            self.oauth_client_users_controller_create_user,
-            self.oauth_client_users_controller_get_user_by_id,
-            self.oauth_client_users_controller_update_user,
-            self.oauth_client_users_controller_delete_user,
-            self.oauth_client_users_controller_force_refresh,
-            self.oauth_flow_controller_refresh_tokens,
-            self.oauth_client_webhooks_controller_create_oauth_client_webhook,
-            self.oauth_client_webhooks_controller_get_oauth_client_webhooks,
-            self.oauth_client_webhooks_controller_delete_all_oauth_client_webhooks,
-            self.oauth_client_webhooks_controller_update_oauth_client_webhook,
-            self.oauth_client_webhooks_controller_get_oauth_client_webhook,
-            self.oauth_client_webhooks_controller_delete_oauth_client_webhook,
-            self.organizations_attributes_controller_get_organization_attributes,
-            self.organizations_attributes_controller_create_organization_attribute,
-            self.organizations_attributes_controller_get_organization_attribute,
-            self.organizations_attributes_controller_update_organization_attribute,
-            self.organizations_attributes_controller_delete_organization_attribute,
-            self.organizations_options_attributes_controller_create_organization_attribute_option,
-            self.organizations_options_attributes_controller_get_organization_attribute_options,
-            self.organizations_options_attributes_controller_delete_organization_attribute_option,
-            self.organizations_options_attributes_controller_update_organization_attribute_option,
-            self.organizations_options_attributes_controller_assign_organization_attribute_option_to_user,
-            self.organizations_options_attributes_controller_get_organization_attribute_options_for_user,
-            self.organizations_options_attributes_controller_unassign_organization_attribute_option_from_user,
-            self.organizations_event_types_controller_create_team_event_type,
-            self.organizations_event_types_controller_get_team_event_types,
-            self.organizations_event_types_controller_get_team_event_type,
-            self.organizations_event_types_controller_create_phone_call,
-            self.organizations_event_types_controller_get_teams_event_types,
-            self.organizations_memberships_controller_get_all_memberships,
-            self.organizations_memberships_controller_create_membership,
-            self.organizations_memberships_controller_get_org_membership,
-            self.organizations_memberships_controller_delete_membership,
-            self.organizations_memberships_controller_update_membership,
-            self.organizations_schedules_controller_get_organization_schedules,
-            self.organizations_schedules_controller_create_user_schedule,
-            self.organizations_schedules_controller_get_user_schedules,
-            self.organizations_schedules_controller_get_user_schedule,
-            self.organizations_schedules_controller_update_user_schedule,
-            self.organizations_schedules_controller_delete_user_schedule,
-            self.organizations_teams_controller_get_all_teams,
-            self.organizations_teams_controller_create_team,
-            self.organizations_teams_controller_get_my_teams,
-            self.organizations_teams_controller_get_team,
-            self.organizations_teams_controller_delete_team,
-            self.organizations_teams_controller_update_team,
-            self.organizations_teams_memberships_controller_get_all_org_team_memberships,
-            self.organizations_teams_memberships_controller_create_org_team_membership,
-            self.organizations_teams_memberships_controller_get_org_team_membership,
-            self.organizations_teams_memberships_controller_delete_org_team_membership,
-            self.organizations_teams_memberships_controller_update_org_team_membership,
-            self.organizations_teams_schedules_controller_get_user_schedules,
-            self.organizations_users_controller_get_organizations_users,
-            self.organizations_users_controller_create_organization_user,
-            self.organizations_users_controller_delete_organization_user,
-            self.organizations_webhooks_controller_get_all_organization_webhooks,
-            self.organizations_webhooks_controller_create_organization_webhook,
-            self.organizations_webhooks_controller_get_organization_webhook,
-            self.organizations_webhooks_controller_delete_webhook,
-            self.organizations_webhooks_controller_update_org_webhook,
-            self.bookings_controller_2024_08_13_get_bookings,
-            self.bookings_controller_2024_08_13_get_booking,
-            self.bookings_controller_2024_08_13_reschedule_booking,
-            self.bookings_controller_2024_08_13_cancel_booking,
-            self.bookings_controller_2024_08_13_mark_no_show,
-            self.bookings_controller_2024_08_13_reassign_booking,
-            self.bookings_controller_2024_08_13_reassign_booking_to_user,
-            self.bookings_controller_2024_08_13_confirm_booking,
-            self.bookings_controller_2024_08_13_decline_booking,
-            self.calendars_controller_create_ics_feed,
-            self.calendars_controller_check_ics_feed,
-            self.calendars_controller_get_busy_times,
-            self.calendars_controller_get_calendars,
+            self.list_client_users,
+            self.create_oauth_client_user,
+            self.get_oauth_client_user_by_id,
+            self.patch_oauth_client_user_by_id,
+            self.delete_user_by_client_id_id,
+            self.force_refresh_user,
+            self.refresh_oauth_client_token,
+            self.create_oauth_client_webhook,
+            self.list_webhooks_by_client_id,
+            self.delete_client_webhook,
+            self.update_webhook,
+            self.get_oauth_client_webhook_by_id,
+            self.delete_oauth_client_webhook_by_id,
+            self.list_org_attributes,
+            self.create_org_attributes,
+            self.fetch_organization_attribute_by_id,
+            self.update_organization_attribute,
+            self.delete_org_attribute,
+            self.create_org_attribute_option,
+            self.get_org_attribute_options,
+            self.delete_attribute_option_by_id,
+            self.patch_option_by_id,
+            self.set_user_attribute_option,
+            self.get_user_org_attribute_options,
+            self.delete_attribute_option,
+            self.create_event_type,
+            self.list_event_types_by_team_and_org,
+            self.get_event_types_by_team_id,
+            self.create_phone_call_event,
+            self.list_event_types_by_org_id,
+            self.list_organization_memberships,
+            self.create_membership,
+            self.get_org_membership_by_id,
+            self.delete_org_membership_by_id,
+            self.update_membership_by_id_org,
+            self.get_organization_schedules,
+            self.create_user_schedule,
+            self.get_user_schedule,
+            self.get_schedule_detail,
+            self.update_user_schedule_by_id,
+            self.delete_user_schedule_by_id,
+            self.get_organization_teams,
+            self.create_team_in_organization,
+            self.get_organization_team_me,
+            self.get_organization_team_by_id,
+            self.delete_team_by_id,
+            self.update_team,
+            self.list_team_memberships,
+            self.create_team_membership,
+            self.get_membership_details,
+            self.delete_org_team_membership_by_id,
+            self.patch_team_membership_by_id,
+            self.get_schedule_by_user,
+            self.list_org_users,
+            self.create_org_user,
+            self.delete_member_by_id,
+            self.get_org_webhooks,
+            self.create_webhook,
+            self.get_organization_webhook_by_id,
+            self.delete_organization_webhook_by_id,
+            self.update_webhook_by_id,
+            self.list_bookings,
+            self.get_booking_by_uid,
+            self.reschedule_booking_by_uid,
+            self.cancel_booking_by_uid,
+            self.mark_booking_absent_by_uid,
+            self.reassign_booking,
+            self.reassign_booking_to_user,
+            self.confirm_booking,
+            self.decline_booking,
+            self.save_ics_feed_post,
+            self.check_ics_feed,
+            self.get_calendars_busy_times,
+            self.get_calendars,
             self.calendars_controller_redirect,
             self.calendars_controller_save,
-            self.calendars_controller_sync_credentials,
+            self.create_calendar_credentials,
             self.calendars_controller_check,
-            self.calendars_controller_delete_calendar_credentials,
+            self.disconnect_calendar,
             self.conferencing_controller_connect,
-            self.conferencing_controller_redirect,
+            self.get_auth_url,
             self.conferencing_controller_save,
-            self.conferencing_controller_list_installed_conferencing_apps,
+            self.list_conferencing,
             self.conferencing_controller_default,
-            self.conferencing_controller_get_default,
-            self.conferencing_controller_disconnect,
-            self.destination_calendars_controller_update_destination_calendars,
-            self.event_types_controller_2024_06_14_get_event_types,
-            self.event_types_controller_2024_06_14_get_event_type_by_id,
-            self.event_types_controller_2024_06_14_delete_event_type,
-            self.event_type_webhooks_controller_create_event_type_webhook,
-            self.event_type_webhooks_controller_get_event_type_webhooks,
-            self.event_type_webhooks_controller_delete_all_event_type_webhooks,
-            self.event_type_webhooks_controller_update_event_type_webhook,
-            self.event_type_webhooks_controller_get_event_type_webhook,
-            self.event_type_webhooks_controller_delete_event_type_webhook,
+            self.get_default_conferencing,
+            self.disconnect_conferencing_app,
+            self.update_destination_calendars,
+            self.list_event_types,
+            self.get_event_type_by_id,
+            self.delete_event_type_by_id,
+            self.create_event_type_webhook,
+            self.get_event_webhooks,
+            self.delete_event_webhook,
+            self.patch_event_type_webhook_by_id,
+            self.get_webhook_by_id,
+            self.delete_event_type_webhook_by_id,
             self.me_controller_get_me,
             self.me_controller_update_me,
-            self.schedules_controller_2024_06_11_create_schedule,
-            self.schedules_controller_2024_06_11_get_schedules,
-            self.schedules_controller_2024_06_11_get_default_schedule,
-            self.schedules_controller_2024_06_11_get_schedule,
-            self.schedules_controller_2024_06_11_update_schedule,
-            self.schedules_controller_2024_06_11_delete_schedule,
-            self.selected_calendars_controller_add_selected_calendar,
-            self.selected_calendars_controller_remove_selected_calendar,
+            self.create_schedule,
+            self.list_schedules,
+            self.get_default_schedule,
+            self.get_schedule_by_id,
+            self.update_schedule_by_id,
+            self.delete_schedule_by_id,
+            self.add_selected_calendar,
+            self.delete_selected_calendars,
             self.slots_controller_reserve_slot,
-            self.slots_controller_delete_selected_slot,
-            self.slots_controller_get_available_slots,
+            self.delete_selected_slot,
+            self.list_available_slots,
             self.stripe_controller_redirect,
             self.stripe_controller_save,
             self.stripe_controller_check,
-            self.stripe_controller_check_team_stripe_connection,
+            self.get_team_stripe_check,
             self.teams_controller_create_team,
             self.teams_controller_get_teams,
             self.teams_controller_get_team,
             self.teams_controller_update_team,
             self.teams_controller_delete_team,
-            self.teams_event_types_controller_create_team_event_type,
-            self.teams_event_types_controller_get_team_event_types,
-            self.teams_event_types_controller_get_team_event_type,
-            self.teams_event_types_controller_delete_team_event_type,
-            self.teams_event_types_controller_create_phone_call,
-            self.teams_memberships_controller_create_team_membership,
-            self.teams_memberships_controller_get_team_memberships,
-            self.teams_memberships_controller_get_team_membership,
-            self.teams_memberships_controller_update_team_membership,
-            self.teams_memberships_controller_delete_team_membership,
-            self.timezones_controller_get_time_zones,
-            self.webhooks_controller_create_webhook,
+            self.create_team_event_type,
+            self.get_team_event_types,
+            self.get_event_type_by_team_id,
+            self.delete_team_event_type_by_id,
+            self.create_phone_call_for_event,
+            self.add_team_membership,
+            self.get_team_memberships,
+            self.get_membership_by_id,
+            self.update_membership,
+            self.deletegithub_membership_by_id,
+            self.get_timezones,
+            self.createandconfigure_webhook,
             self.webhooks_controller_get_webhooks,
-            self.webhooks_controller_update_webhook,
+            self.patch_webhook,
             self.webhooks_controller_get_webhook,
-            self.webhooks_controller_delete_webhook
+            self.delete_user_webhook_by_id
         ]
