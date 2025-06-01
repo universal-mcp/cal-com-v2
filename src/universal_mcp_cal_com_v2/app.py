@@ -22,7 +22,7 @@ class CalComV2App(APIApplication):
             JSONDecodeError: Raised if the response body cannot be parsed as JSON.
 
         Tags:
-            Platform / Cal Provider
+            Platform / Cal Provider, important
         """
         if clientId is None:
             raise ValueError("Missing required parameter 'clientId'.")
@@ -2311,7 +2311,7 @@ class CalComV2App(APIApplication):
             JSONDecodeError: Raised if the response body cannot be parsed as JSON.
 
         Tags:
-            Orgs / Users
+            Orgs / Users, important
         """
         if orgId is None:
             raise ValueError("Missing required parameter 'orgId'.")
@@ -2356,7 +2356,7 @@ class CalComV2App(APIApplication):
             JSONDecodeError: Raised if the response body cannot be parsed as JSON.
 
         Tags:
-            Orgs / Users
+            Orgs / Users, important
         """
         if orgId is None:
             raise ValueError("Missing required parameter 'orgId'.")
@@ -2406,7 +2406,7 @@ class CalComV2App(APIApplication):
             JSONDecodeError: Raised if the response body cannot be parsed as JSON.
 
         Tags:
-            Orgs / Users
+            Orgs / Users, important
         """
         if orgId is None:
             raise ValueError("Missing required parameter 'orgId'.")
@@ -2640,7 +2640,7 @@ class CalComV2App(APIApplication):
             JSONDecodeError: Raised if the response body cannot be parsed as JSON.
 
         Tags:
-            Bookings
+            Bookings, important
         """
         url = f"{self.base_url}/v2/bookings"
         query_params = {k: v for k, v in [('status', status), ('attendeeEmail', attendeeEmail), ('attendeeName', attendeeName), ('eventTypeIds', eventTypeIds), ('eventTypeId', eventTypeId), ('teamsIds', teamsIds), ('teamId', teamId), ('afterStart', afterStart), ('beforeEnd', beforeEnd), ('sortStart', sortStart), ('sortEnd', sortEnd), ('sortCreated', sortCreated), ('take', take), ('skip', skip)] if v is not None}
@@ -3840,7 +3840,7 @@ class CalComV2App(APIApplication):
             JSONDecodeError: Raised if the response body cannot be parsed as JSON.
 
         Tags:
-            Schedules
+            Schedules, important
         """
         request_body_data = None
         request_body_data = {
@@ -3874,7 +3874,7 @@ class CalComV2App(APIApplication):
             JSONDecodeError: Raised if the response body cannot be parsed as JSON.
 
         Tags:
-            Schedules
+            Schedules, important
         """
         url = f"{self.base_url}/v2/schedules"
         query_params = {}
