@@ -1,10 +1,11 @@
-import pytest
 from unittest.mock import MagicMock
-from universal_mcp_cal_com_v2.app import CalComV2App
 
+import pytest
 from universal_mcp.utils.testing import (
     check_application_instance,
 )
+
+from universal_mcp_cal_com_v2.app import CalComV2App
 
 @pytest.fixture
 def app_instance():
